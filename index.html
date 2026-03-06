@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>🌟 Fun English - 英文小天地</title>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800;900&family=Bubblegum+Sans&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
     :root { --grass: #7EC850; --pink: #FF6EB4; --white: #FFFDF7; --dark: #2C3E50; }
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -32,8 +33,8 @@
     header p { font-size: 1rem; color: white; margin-top: 5px; text-shadow: 1px 1px 3px rgba(0,0,0,0.3); font-weight: 700; }
     @keyframes bounceIn { 0% { transform: scale(0.3); opacity: 0; } 60% { transform: scale(1.1); } 100% { transform: scale(1); opacity: 1; } }
 
-    .page-nav { display: flex; justify-content: center; gap: 10px; padding: 10px 20px; position: relative; z-index: 10; flex-wrap: wrap; }
-    .page-nav-btn { background: rgba(255,255,255,0.28); border: 3px solid white; border-radius: 30px; padding: 8px 20px; font-family: 'Nunito', sans-serif; font-size: 0.95rem; font-weight: 800; color: white; cursor: pointer; transition: all 0.25s; backdrop-filter: blur(4px); display: flex; align-items: center; gap: 5px; }
+    .page-nav { display: flex; justify-content: center; gap: 8px; padding: 10px 20px; position: relative; z-index: 10; flex-wrap: wrap; }
+    .page-nav-btn { background: rgba(255,255,255,0.28); border: 3px solid white; border-radius: 30px; padding: 8px 16px; font-family: 'Nunito', sans-serif; font-size: 0.88rem; font-weight: 800; color: white; cursor: pointer; transition: all 0.25s; backdrop-filter: blur(4px); display: flex; align-items: center; gap: 5px; }
     .page-nav-btn:hover { background: rgba(255,255,255,0.5); transform: translateY(-2px); }
     .page-nav-btn.active { background: white; color: var(--dark); box-shadow: 0 5px 15px rgba(0,0,0,0.15); transform: translateY(-2px); }
     .badge { background: #E74C3C; color: white; border-radius: 50%; width: 20px; height: 20px; font-size: 0.68rem; display: inline-flex; align-items: center; justify-content: center; }
@@ -41,9 +42,10 @@
     .page { display: none; }
     .page.active { display: block; }
 
+    /* TOOLBAR */
     .toolbar { position: relative; z-index: 10; max-width: 1100px; margin: 0 auto; padding: 6px 20px 8px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
     .toolbar-left { display: flex; gap: 7px; flex-wrap: wrap; }
-    .tab-btn { background: white; border: 3px solid transparent; border-radius: 30px; padding: 6px 15px; font-family: 'Nunito', sans-serif; font-size: 0.88rem; font-weight: 800; cursor: pointer; transition: all 0.25s; box-shadow: 0 4px 0 rgba(0,0,0,0.15); }
+    .tab-btn { background: white; border: 3px solid transparent; border-radius: 30px; padding: 6px 13px; font-family: 'Nunito', sans-serif; font-size: 0.82rem; font-weight: 800; cursor: pointer; transition: all 0.25s; box-shadow: 0 4px 0 rgba(0,0,0,0.15); }
     .tab-btn:hover { transform: translateY(-3px); box-shadow: 0 7px 0 rgba(0,0,0,0.15); }
     .tab-btn.active { color: white; transform: translateY(-3px); }
     .tab-btn[data-cat="animals"] { color: #E74C3C; } .tab-btn[data-cat="animals"].active { background: #E74C3C; border-color: #C0392B; }
@@ -51,70 +53,54 @@
     .tab-btn[data-cat="colors"] { color: #9B59B6; } .tab-btn[data-cat="colors"].active { background: #9B59B6; border-color: #7D3C98; }
     .tab-btn[data-cat="body"] { color: #1ABC9C; } .tab-btn[data-cat="body"].active { background: #1ABC9C; border-color: #16A085; }
     .tab-btn[data-cat="school"] { color: #2980B9; } .tab-btn[data-cat="school"].active { background: #2980B9; border-color: #1F618D; }
-
-    .refresh-btn { background: white; border: 3px solid #FF6EB4; border-radius: 30px; padding: 6px 16px; font-family: 'Nunito', sans-serif; font-size: 0.88rem; font-weight: 800; color: #FF6EB4; cursor: pointer; transition: all 0.25s; box-shadow: 0 4px 0 rgba(255,110,180,0.3); display: flex; align-items: center; gap: 5px; }
-    .refresh-btn:hover { background: #FF6EB4; color: white; transform: translateY(-3px); box-shadow: 0 7px 0 rgba(255,110,180,0.3); }
+    .tab-btn[data-cat="aquatic"] { color: #0077B6; } .tab-btn[data-cat="aquatic"].active { background: #0077B6; border-color: #005A8E; }
+    .refresh-btn { background: white; border: 3px solid #FF6EB4; border-radius: 30px; padding: 6px 14px; font-family: 'Nunito', sans-serif; font-size: 0.82rem; font-weight: 800; color: #FF6EB4; cursor: pointer; transition: all 0.25s; box-shadow: 0 4px 0 rgba(255,110,180,0.3); display: flex; align-items: center; gap: 5px; }
+    .refresh-btn:hover { background: #FF6EB4; color: white; transform: translateY(-3px); }
     .refresh-icon { display: inline-block; transition: transform 0.5s; }
     .refresh-btn:hover .refresh-icon { transform: rotate(180deg); }
 
+    /* CARDS */
     .cards-section { position: relative; z-index: 10; max-width: 1100px; margin: 0 auto; padding: 8px 20px 80px; }
-    .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(172px, 1fr)); gap: 16px; }
-
-    .card { background: var(--white); border-radius: 22px; padding: 16px 13px 13px; text-align: center; cursor: pointer; box-shadow: 0 6px 0 rgba(0,0,0,0.12), 0 10px 25px rgba(0,0,0,0.08); transition: transform 0.2s, box-shadow 0.2s; animation: cardIn 0.45s ease both; position: relative; }
+    .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(165px, 1fr)); gap: 14px; }
+    .card { background: var(--white); border-radius: 22px; padding: 15px 12px 12px; text-align: center; cursor: pointer; box-shadow: 0 6px 0 rgba(0,0,0,0.12), 0 10px 25px rgba(0,0,0,0.08); transition: transform 0.2s, box-shadow 0.2s; animation: cardIn 0.45s ease both; position: relative; }
     .card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 6px; border-radius: 22px 22px 0 0; }
     .card:hover { transform: translateY(-7px) rotate(-1deg); box-shadow: 0 13px 0 rgba(0,0,0,0.1), 0 20px 35px rgba(0,0,0,0.12); }
     .card.playing { animation: wiggle 0.4s ease; }
     @keyframes cardIn { from { opacity:0; transform: scale(0.7) rotate(-5deg); } to { opacity:1; transform: scale(1) rotate(0); } }
     @keyframes wiggle { 0%,100% { transform: rotate(0); } 25% { transform: rotate(-5deg) scale(1.05); } 75% { transform: rotate(5deg) scale(1.05); } }
-
-    .card-emoji { font-size: 3rem; display: block; margin-bottom: 7px; line-height: 1; transition: transform 0.3s; }
+    .card-emoji { font-size: 2.8rem; display: block; margin-bottom: 6px; line-height: 1; transition: transform 0.3s; }
     .card:hover .card-emoji { transform: scale(1.15) rotate(5deg); }
-    .card-word { font-family: 'Bubblegum Sans', cursive; font-size: 1.3rem; color: var(--dark); display: block; margin-bottom: 2px; }
-    .card-phonetic { font-size: 0.7rem; color: #888; display: block; margin-bottom: 6px; font-style: italic; }
-    .card-zh { font-size: 0.8rem; color: #666; display: block; margin-bottom: 9px; font-weight: 700; }
-
+    .card-word { font-family: 'Bubblegum Sans', cursive; font-size: 1.2rem; color: var(--dark); display: block; margin-bottom: 2px; }
+    .card-phonetic { font-size: 0.68rem; color: #888; display: block; margin-bottom: 5px; font-style: italic; }
+    .card-zh { font-size: 0.78rem; color: #666; display: block; margin-bottom: 8px; font-weight: 700; }
     .card-btns { display: flex; gap: 5px; justify-content: center; flex-wrap: wrap; }
-    .speak-btn, .save-btn { border-radius: 18px; padding: 4px 11px; font-size: 0.77rem; font-weight: 800; font-family: 'Nunito', sans-serif; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 3px; border: 2px solid; background: none; }
-    .speak-btn:hover, .save-btn:hover { transform: scale(1.08); }
+    .speak-btn, .save-btn { border-radius: 18px; padding: 4px 10px; font-size: 0.74rem; font-weight: 800; font-family: 'Nunito', sans-serif; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 3px; border: 2px solid; background: none; }
     .save-btn.saved { color: #F39C12 !important; border-color: #F39C12 !important; }
     .save-btn.saved:hover { background: #F39C12 !important; color: white !important; }
 
-    .card[data-cat="animals"]::before { background: #E74C3C; }
-    .card[data-cat="animals"] .speak-btn { color:#E74C3C; border-color:#E74C3C; } .card[data-cat="animals"] .speak-btn:hover { background:#E74C3C; color:white; }
-    .card[data-cat="animals"] .save-btn { color:#E74C3C; border-color:#E74C3C; } .card[data-cat="animals"] .save-btn:hover { background:#E74C3C; color:white; }
-    .card[data-cat="food"]::before { background: #FF8C42; }
-    .card[data-cat="food"] .speak-btn { color:#FF8C42; border-color:#FF8C42; } .card[data-cat="food"] .speak-btn:hover { background:#FF8C42; color:white; }
-    .card[data-cat="food"] .save-btn { color:#FF8C42; border-color:#FF8C42; } .card[data-cat="food"] .save-btn:hover { background:#FF8C42; color:white; }
-    .card[data-cat="colors"]::before { background: #9B59B6; }
-    .card[data-cat="colors"] .speak-btn { color:#9B59B6; border-color:#9B59B6; } .card[data-cat="colors"] .speak-btn:hover { background:#9B59B6; color:white; }
-    .card[data-cat="colors"] .save-btn { color:#9B59B6; border-color:#9B59B6; } .card[data-cat="colors"] .save-btn:hover { background:#9B59B6; color:white; }
-    .card[data-cat="body"]::before { background: #1ABC9C; }
-    .card[data-cat="body"] .speak-btn { color:#1ABC9C; border-color:#1ABC9C; } .card[data-cat="body"] .speak-btn:hover { background:#1ABC9C; color:white; }
-    .card[data-cat="body"] .save-btn { color:#1ABC9C; border-color:#1ABC9C; } .card[data-cat="body"] .save-btn:hover { background:#1ABC9C; color:white; }
-    .card[data-cat="school"]::before { background: #2980B9; }
-    .card[data-cat="school"] .speak-btn { color:#2980B9; border-color:#2980B9; } .card[data-cat="school"] .speak-btn:hover { background:#2980B9; color:white; }
-    .card[data-cat="school"] .save-btn { color:#2980B9; border-color:#2980B9; } .card[data-cat="school"] .save-btn:hover { background:#2980B9; color:white; }
-    .card[data-cat="bookmark"]::before { background: #F39C12; }
-    .card[data-cat="bookmark"] .speak-btn { color:#F39C12; border-color:#F39C12; } .card[data-cat="bookmark"] .speak-btn:hover { background:#F39C12; color:white; }
+    .card[data-cat="animals"]::before{background:#E74C3C} .card[data-cat="animals"] .speak-btn{color:#E74C3C;border-color:#E74C3C} .card[data-cat="animals"] .speak-btn:hover{background:#E74C3C;color:white} .card[data-cat="animals"] .save-btn{color:#E74C3C;border-color:#E74C3C} .card[data-cat="animals"] .save-btn:hover{background:#E74C3C;color:white}
+    .card[data-cat="food"]::before{background:#FF8C42} .card[data-cat="food"] .speak-btn{color:#FF8C42;border-color:#FF8C42} .card[data-cat="food"] .speak-btn:hover{background:#FF8C42;color:white} .card[data-cat="food"] .save-btn{color:#FF8C42;border-color:#FF8C42} .card[data-cat="food"] .save-btn:hover{background:#FF8C42;color:white}
+    .card[data-cat="colors"]::before{background:#9B59B6} .card[data-cat="colors"] .speak-btn{color:#9B59B6;border-color:#9B59B6} .card[data-cat="colors"] .speak-btn:hover{background:#9B59B6;color:white} .card[data-cat="colors"] .save-btn{color:#9B59B6;border-color:#9B59B6} .card[data-cat="colors"] .save-btn:hover{background:#9B59B6;color:white}
+    .card[data-cat="body"]::before{background:#1ABC9C} .card[data-cat="body"] .speak-btn{color:#1ABC9C;border-color:#1ABC9C} .card[data-cat="body"] .speak-btn:hover{background:#1ABC9C;color:white} .card[data-cat="body"] .save-btn{color:#1ABC9C;border-color:#1ABC9C} .card[data-cat="body"] .save-btn:hover{background:#1ABC9C;color:white}
+    .card[data-cat="school"]::before{background:#2980B9} .card[data-cat="school"] .speak-btn{color:#2980B9;border-color:#2980B9} .card[data-cat="school"] .speak-btn:hover{background:#2980B9;color:white} .card[data-cat="school"] .save-btn{color:#2980B9;border-color:#2980B9} .card[data-cat="school"] .save-btn:hover{background:#2980B9;color:white}
+    .card[data-cat="aquatic"]::before{background:#0077B6} .card[data-cat="aquatic"] .speak-btn{color:#0077B6;border-color:#0077B6} .card[data-cat="aquatic"] .speak-btn:hover{background:#0077B6;color:white} .card[data-cat="aquatic"] .save-btn{color:#0077B6;border-color:#0077B6} .card[data-cat="aquatic"] .save-btn:hover{background:#0077B6;color:white}
+    .card[data-cat="bookmark"]::before{background:#F39C12} .card[data-cat="bookmark"] .speak-btn{color:#F39C12;border-color:#F39C12} .card[data-cat="bookmark"] .speak-btn:hover{background:#F39C12;color:white}
 
-    /* ===== QUIZ ===== */
+    /* QUIZ */
     .quiz-section { position: relative; z-index: 10; max-width: 580px; margin: 0 auto 80px; padding: 5px 20px; }
-    .quiz-box { background: white; border-radius: 26px; padding: 24px 22px 20px; box-shadow: 0 8px 0 rgba(0,0,0,0.12), 0 15px 40px rgba(0,0,0,0.1); text-align: center; }
-    .quiz-box h2 { font-family: 'Bubblegum Sans', cursive; font-size: 1.6rem; color: var(--dark); margin-bottom: 12px; }
-
+    .quiz-box { background: white; border-radius: 26px; padding: 22px 20px 18px; box-shadow: 0 8px 0 rgba(0,0,0,0.12), 0 15px 40px rgba(0,0,0,0.1); text-align: center; }
+    .quiz-box h2 { font-family: 'Bubblegum Sans', cursive; font-size: 1.5rem; color: var(--dark); margin-bottom: 10px; }
     .quiz-progress-wrap { margin-bottom: 8px; }
     .quiz-progress-label { display: flex; justify-content: space-between; font-size: 0.78rem; font-weight: 800; color: #aaa; margin-bottom: 5px; }
     .quiz-progress-bar { height: 8px; background: #F0F0F0; border-radius: 99px; overflow: hidden; }
     .quiz-progress-fill { height: 100%; background: linear-gradient(90deg, #FF6EB4, #FF8C42); border-radius: 99px; transition: width 0.4s ease; }
-
     .quiz-score-row { display: flex; align-items: center; justify-content: center; gap: 16px; margin-bottom: 8px; }
-    .quiz-counter { font-size: 0.88rem; font-weight: 800; color: #999; }
+    .quiz-counter { font-size: 0.85rem; font-weight: 800; color: #999; }
     .quiz-score-pts { font-family: 'Bubblegum Sans', cursive; font-size: 1.6rem; color: #FF6EB4; }
     .quiz-score-pts small { font-size: 0.85rem; color: #bbb; font-family: 'Nunito', sans-serif; font-weight: 800; }
-
-    .quiz-emoji { font-size: 4.2rem; margin: 4px 0 2px; display: block; }
-    .quiz-question { font-size: 0.92rem; font-weight: 700; color: #666; margin-bottom: 14px; }
-    .quiz-options { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin-bottom: 12px; }
+    .quiz-emoji { font-size: 4rem; margin: 4px 0 2px; display: block; }
+    .quiz-question { font-size: 0.9rem; font-weight: 700; color: #666; margin-bottom: 12px; }
+    .quiz-options { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin-bottom: 10px; }
     .quiz-opt { background: #F0F4FF; border: 3px solid #D0D8FF; border-radius: 14px; padding: 10px; font-family: 'Bubblegum Sans', cursive; font-size: 1rem; color: var(--dark); cursor: pointer; transition: all 0.2s; }
     .quiz-opt:hover:not(:disabled) { background: #D8E0FF; transform: scale(1.04); }
     .quiz-opt:disabled { cursor: default; }
@@ -122,21 +108,64 @@
     .quiz-opt.wrong { background: #FADBD8; border-color: #E74C3C; color: #C0392B; }
     .quiz-opt.pop { animation: optPop 0.3s ease; }
     @keyframes optPop { 0%,100% { transform: scale(1); } 50% { transform: scale(1.07); } }
+    .quiz-feedback { font-size: 1.05rem; font-weight: 900; min-height: 30px; display: flex; align-items: center; justify-content: center; gap: 8px; }
 
-    .quiz-feedback { font-size: 1.1rem; font-weight: 900; min-height: 32px; display: flex; align-items: center; justify-content: center; gap: 8px; }
-
-    /* 結果畫面 */
-    .quiz-result { display: none; text-align: center; padding: 8px 0 4px; }
+    /* RESULT */
+    .quiz-result { display: none; text-align: center; padding: 6px 0 4px; }
     .quiz-result.show { display: block; }
-    .result-emoji-big { font-size: 4.5rem; display: block; margin-bottom: 6px; }
+    .result-card { background: linear-gradient(135deg, #fff9f0, #fff0f8); border-radius: 20px; padding: 20px; margin-bottom: 14px; border: 2px solid #FFE0F0; }
+    .result-emoji-big { font-size: 4rem; display: block; margin-bottom: 6px; }
     .result-pts { font-family: 'Bubblegum Sans', cursive; font-size: 4rem; color: #FF6EB4; line-height: 1; }
-    .result-pts small { font-size: 1.3rem; color: #bbb; font-family: 'Nunito', sans-serif; font-weight: 800; }
-    .result-msg { font-size: 1.1rem; font-weight: 800; color: var(--dark); margin: 8px 0 4px; }
-    .result-detail { font-size: 0.83rem; color: #aaa; margin-bottom: 18px; }
+    .result-pts small { font-size: 1.2rem; color: #bbb; font-family: 'Nunito', sans-serif; font-weight: 800; }
+    .result-msg { font-size: 1.05rem; font-weight: 800; color: var(--dark); margin: 6px 0 3px; }
+    .result-detail { font-size: 0.82rem; color: #aaa; margin-bottom: 10px; }
+    .result-breakdown { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+    .result-stat { background: white; border-radius: 12px; padding: 8px; border: 2px solid #F0F0F0; }
+    .result-stat-val { font-family: 'Bubblegum Sans', cursive; font-size: 1.6rem; color: var(--dark); }
+    .result-stat-label { font-size: 0.72rem; color: #aaa; font-weight: 800; }
+    .result-btns { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-top: 12px; }
+    .result-btn { border: none; border-radius: 28px; padding: 9px 18px; font-family: 'Bubblegum Sans', cursive; font-size: 0.92rem; cursor: pointer; box-shadow: 0 5px 0 rgba(0,0,0,0.15); transition: all 0.2s; }
+    .result-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 0 rgba(0,0,0,0.15); }
+    .btn-replay { background: linear-gradient(135deg, #FF6EB4, #FF8C42); color: white; }
+    .btn-screenshot { background: linear-gradient(135deg, #1ABC9C, #2980B9); color: white; }
+    .btn-export { background: linear-gradient(135deg, #9B59B6, #8E44AD); color: white; }
 
-    .quiz-toolbar { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
-    #quiz-refresh-btn { border: none; border-radius: 28px; padding: 10px 26px; font-family: 'Bubblegum Sans', cursive; font-size: 1rem; cursor: pointer; box-shadow: 0 5px 0 rgba(0,0,0,0.2); transition: all 0.2s; background: linear-gradient(135deg, #FF6EB4, #FF8C42); color: white; }
-    #quiz-refresh-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 0 rgba(0,0,0,0.2); }
+    /* STATS PAGE */
+    .stats-page { position: relative; z-index: 10; max-width: 700px; margin: 0 auto; padding: 10px 20px 80px; }
+    .stats-title { font-family: 'Bubblegum Sans', cursive; font-size: 1.8rem; color: white; text-shadow: 2px 2px 0 rgba(0,0,0,0.15); margin-bottom: 14px; text-align: center; }
+    .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 14px; }
+    .stat-card { background: white; border-radius: 20px; padding: 16px; text-align: center; box-shadow: 0 6px 0 rgba(0,0,0,0.1); }
+    .stat-card-val { font-family: 'Bubblegum Sans', cursive; font-size: 2.4rem; display: block; }
+    .stat-card-label { font-size: 0.8rem; font-weight: 800; color: #888; margin-top: 2px; }
+    .stat-card.pink .stat-card-val { color: #FF6EB4; }
+    .stat-card.orange .stat-card-val { color: #FF8C42; }
+    .stat-card.teal .stat-card-val { color: #1ABC9C; }
+    .stat-card.blue .stat-card-val { color: #2980B9; }
+    .history-box { background: white; border-radius: 20px; padding: 16px; box-shadow: 0 6px 0 rgba(0,0,0,0.1); margin-bottom: 14px; }
+    .history-title { font-family: 'Bubblegum Sans', cursive; font-size: 1.1rem; color: var(--dark); margin-bottom: 10px; }
+    .history-list { max-height: 280px; overflow-y: auto; }
+    .history-item { display: flex; align-items: center; justify-content: space-between; padding: 8px 10px; border-radius: 12px; margin-bottom: 5px; background: #F8F8F8; }
+    .history-item:nth-child(odd) { background: #F0F4FF; }
+    .history-score { font-family: 'Bubblegum Sans', cursive; font-size: 1.3rem; }
+    .history-score.perfect { color: #FFB800; }
+    .history-score.great { color: #27AE60; }
+    .history-score.ok { color: #2980B9; }
+    .history-score.low { color: #E74C3C; }
+    .history-meta { font-size: 0.75rem; color: #aaa; font-weight: 700; }
+    .history-correct { font-size: 0.8rem; color: #888; font-weight: 800; }
+    .chart-wrap { background: white; border-radius: 20px; padding: 16px; box-shadow: 0 6px 0 rgba(0,0,0,0.1); margin-bottom: 14px; }
+    .chart-title { font-family: 'Bubblegum Sans', cursive; font-size: 1.1rem; color: var(--dark); margin-bottom: 12px; }
+    .bar-chart { display: flex; align-items: flex-end; gap: 6px; height: 120px; padding: 0 4px; }
+    .bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; height: 100%; justify-content: flex-end; }
+    .bar { width: 100%; border-radius: 8px 8px 0 0; transition: height 0.5s ease; min-height: 4px; background: linear-gradient(180deg, #FF6EB4, #FF8C42); }
+    .bar-label { font-size: 0.65rem; font-weight: 800; color: #aaa; }
+    .bar-val { font-size: 0.7rem; font-weight: 900; color: #FF6EB4; }
+    .stats-btns { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+    .stats-btn { border: none; border-radius: 28px; padding: 9px 18px; font-family: 'Bubblegum Sans', cursive; font-size: 0.92rem; cursor: pointer; box-shadow: 0 5px 0 rgba(0,0,0,0.15); transition: all 0.2s; color: white; }
+    .stats-btn:hover { transform: translateY(-3px); }
+    .btn-export-csv { background: linear-gradient(135deg, #27AE60, #1E8449); }
+    .btn-clear-hist { background: linear-gradient(135deg, #E74C3C, #C0392B); }
+    .empty-history { text-align: center; padding: 30px; color: #bbb; font-weight: 800; font-size: 0.9rem; }
 
     /* BOOKMARKS */
     .bookmarks-page { position: relative; z-index: 10; max-width: 1100px; margin: 0 auto; padding: 12px 20px 80px; }
@@ -149,15 +178,24 @@
     .empty-state p { font-size: 1.05rem; color: var(--dark); font-weight: 700; }
     .empty-state small { color: #888; font-size: 0.88rem; }
 
-    .toast { position: fixed; bottom: 75px; left: 50%; transform: translateX(-50%) translateY(20px); background: rgba(44,62,80,0.92); color: white; padding: 9px 22px; border-radius: 28px; font-weight: 800; font-size: 0.92rem; z-index: 999; opacity: 0; transition: opacity 0.3s, transform 0.3s; pointer-events: none; white-space: nowrap; }
-    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    /* SCREENSHOT OVERLAY */
+    #screenshot-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 9999; align-items: center; justify-content: center; flex-direction: column; gap: 12px; }
+    #screenshot-overlay.show { display: flex; }
+    #screenshot-overlay img { max-width: 90vw; max-height: 70vh; border-radius: 16px; box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
+    .ss-btns { display: flex; gap: 10px; }
+    .ss-btn { border: none; border-radius: 28px; padding: 10px 22px; font-family: 'Bubblegum Sans', cursive; font-size: 1rem; cursor: pointer; color: white; }
+    .ss-save { background: #27AE60; }
+    .ss-close { background: #E74C3C; }
 
+    .toast { position: fixed; bottom: 75px; left: 50%; transform: translateX(-50%) translateY(20px); background: rgba(44,62,80,0.92); color: white; padding: 9px 22px; border-radius: 28px; font-weight: 800; font-size: 0.92rem; z-index: 1000; opacity: 0; transition: opacity 0.3s, transform 0.3s; pointer-events: none; white-space: nowrap; }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
     .footer-grass { position: fixed; bottom: 0; left: 0; right: 0; height: 55px; background: var(--grass); z-index: 0; }
     .footer-grass::before { content: ''; position: absolute; top: -20px; left: 0; right: 0; height: 25px; background: radial-gradient(ellipse 20px 20px at 50% 100%, #7EC850 50%, transparent 51%) repeat-x; background-size: 30px 25px; }
 
     @media (max-width: 500px) {
       .cards-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-      .card-emoji { font-size: 2.5rem; }
+      .card-emoji { font-size: 2.4rem; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
     }
   </style>
 </head>
@@ -176,7 +214,8 @@
 <div class="page-nav">
   <button class="page-nav-btn active" data-page="learn">📖 學習單字</button>
   <button class="page-nav-btn" data-page="quiz">🎮 小測驗</button>
-  <button class="page-nav-btn" data-page="bookmarks">⭐ 我的收藏 <span class="badge" id="bookmark-badge">0</span></button>
+  <button class="page-nav-btn" data-page="stats">📊 成績統計</button>
+  <button class="page-nav-btn" data-page="bookmarks">⭐ 收藏 <span class="badge" id="bookmark-badge">0</span></button>
 </div>
 
 <!-- LEARN PAGE -->
@@ -188,10 +227,9 @@
       <button class="tab-btn" data-cat="colors">🌈 顏色</button>
       <button class="tab-btn" data-cat="body">👀 身體</button>
       <button class="tab-btn" data-cat="school">✏️ 學校</button>
+      <button class="tab-btn" data-cat="aquatic">🐠 水族</button>
     </div>
-    <button class="refresh-btn" id="refresh-cards-btn">
-      <span class="refresh-icon">🔄</span> 換一批單字
-    </button>
+    <button class="refresh-btn" id="refresh-cards-btn"><span class="refresh-icon">🔄</span> 換一批</button>
   </div>
   <div class="cards-section">
     <div class="cards-grid" id="cards-grid"></div>
@@ -201,19 +239,15 @@
 <!-- QUIZ PAGE -->
 <div class="page" id="page-quiz">
   <div class="quiz-section">
-    <div class="quiz-box">
+    <div class="quiz-box" id="quiz-box">
       <h2>🎮 小測驗</h2>
-
-      <!-- 進行中畫面 -->
       <div id="quiz-playing">
         <div class="quiz-progress-wrap">
           <div class="quiz-progress-label">
             <span>答題進度</span>
             <span id="progress-text">0 / 10</span>
           </div>
-          <div class="quiz-progress-bar">
-            <div class="quiz-progress-fill" id="progress-fill" style="width:0%"></div>
-          </div>
+          <div class="quiz-progress-bar"><div class="quiz-progress-fill" id="progress-fill" style="width:0%"></div></div>
         </div>
         <div class="quiz-score-row">
           <span class="quiz-counter">答對 <strong id="correct-count">0</strong> 題</span>
@@ -225,17 +259,50 @@
         <div class="quiz-options" id="quiz-options"></div>
         <div class="quiz-feedback" id="quiz-feedback"></div>
       </div>
-
-      <!-- 結果畫面 -->
       <div class="quiz-result" id="quiz-result">
-        <span class="result-emoji-big" id="result-emoji">🎉</span>
-        <div class="result-pts" id="result-pts">0 <small>分</small></div>
-        <div class="result-msg" id="result-msg"></div>
-        <div class="result-detail" id="result-detail"></div>
-        <div class="quiz-toolbar">
-          <button id="quiz-refresh-btn">🔄 再玩一次</button>
+        <div class="result-card" id="result-card">
+          <span class="result-emoji-big" id="result-emoji">🎉</span>
+          <div class="result-pts" id="result-pts">0 <small>分</small></div>
+          <div class="result-msg" id="result-msg"></div>
+          <div class="result-detail" id="result-detail"></div>
+          <div class="result-breakdown">
+            <div class="result-stat"><div class="result-stat-val" id="r-correct">0</div><div class="result-stat-label">✅ 答對</div></div>
+            <div class="result-stat"><div class="result-stat-val" id="r-wrong">0</div><div class="result-stat-label">❌ 答錯</div></div>
+            <div class="result-stat"><div class="result-stat-val" id="r-pct">0%</div><div class="result-stat-label">📈 正確率</div></div>
+            <div class="result-stat"><div class="result-stat-val" id="r-rank">-</div><div class="result-stat-label">🏅 歷史排名</div></div>
+          </div>
+        </div>
+        <div class="result-btns">
+          <button class="result-btn btn-replay" id="quiz-refresh-btn">🔄 再玩一次</button>
+          <button class="result-btn btn-screenshot" id="screenshot-btn">📸 截圖分數</button>
+          <button class="result-btn btn-export" id="export-this-btn">💾 匯出成績</button>
         </div>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- STATS PAGE -->
+<div class="page" id="page-stats">
+  <div class="stats-page">
+    <div class="stats-title">📊 成績統計</div>
+    <div class="stats-grid">
+      <div class="stat-card pink"><span class="stat-card-val" id="st-total">0</span><div class="stat-card-label">🎮 總測驗次數</div></div>
+      <div class="stat-card orange"><span class="stat-card-val" id="st-best">-</span><div class="stat-card-label">🏆 最高分</div></div>
+      <div class="stat-card teal"><span class="stat-card-val" id="st-avg">-</span><div class="stat-card-label">📈 平均分數</div></div>
+      <div class="stat-card blue"><span class="stat-card-val" id="st-perfect">0</span><div class="stat-card-label">⭐ 滿分次數</div></div>
+    </div>
+    <div class="chart-wrap">
+      <div class="chart-title">📉 最近10次成績趨勢</div>
+      <div class="bar-chart" id="bar-chart"></div>
+    </div>
+    <div class="history-box">
+      <div class="history-title">🗂️ 歷史紀錄</div>
+      <div class="history-list" id="history-list"></div>
+    </div>
+    <div class="stats-btns">
+      <button class="stats-btn btn-export-csv" id="export-csv-btn">📥 匯出 CSV</button>
+      <button class="stats-btn btn-clear-hist" id="clear-history-btn">🗑️ 清除紀錄</button>
     </div>
   </div>
 </div>
@@ -251,8 +318,17 @@
     <div class="empty-state" id="empty-state">
       <span class="big-emoji">📭</span>
       <p>還沒有收藏的單字喔！</p>
-      <small>在單字卡上按 ☆ 收藏，就能加到這裡</small>
+      <small>在單字卡上按 ☆ 收藏</small>
     </div>
+  </div>
+</div>
+
+<!-- SCREENSHOT OVERLAY -->
+<div id="screenshot-overlay">
+  <img id="ss-preview" src="" alt="截圖預覽">
+  <div class="ss-btns">
+    <button class="ss-btn ss-save" id="ss-save-btn">💾 儲存圖片</button>
+    <button class="ss-btn ss-close" id="ss-close-btn">✕ 關閉</button>
   </div>
 </div>
 
@@ -260,6 +336,7 @@
 <div class="footer-grass"></div>
 
 <script>
+// ===== 單字資料庫（100個單字）=====
 const vocab = {
   animals: [
     {emoji:'🐶',word:'Dog',zh:'狗',phonetic:'/dɒɡ/'},
@@ -273,7 +350,13 @@ const vocab = {
     {emoji:'🐼',word:'Panda',zh:'熊貓',phonetic:'/ˈpændə/'},
     {emoji:'🦊',word:'Fox',zh:'狐狸',phonetic:'/fɒks/'},
     {emoji:'🐯',word:'Tiger',zh:'老虎',phonetic:'/ˈtaɪɡər/'},
-    {emoji:'🐬',word:'Dolphin',zh:'海豚',phonetic:'/ˈdɒlfɪn/'},
+    {emoji:'🦒',word:'Giraffe',zh:'長頸鹿',phonetic:'/dʒɪˈrɑːf/'},
+    {emoji:'🐻',word:'Bear',zh:'熊',phonetic:'/ber/'},
+    {emoji:'🦓',word:'Zebra',zh:'斑馬',phonetic:'/ˈziːbrə/'},
+    {emoji:'🐦',word:'Bird',zh:'鳥',phonetic:'/bɜːrd/'},
+    {emoji:'🐢',word:'Turtle',zh:'烏龜',phonetic:'/ˈtɜːrtəl/'},
+    {emoji:'🦅',word:'Eagle',zh:'老鷹',phonetic:'/ˈiːɡəl/'},
+    {emoji:'🐊',word:'Crocodile',zh:'鱷魚',phonetic:'/ˈkrɒkədaɪl/'},
   ],
   food: [
     {emoji:'🍎',word:'Apple',zh:'蘋果',phonetic:'/ˈæpəl/'},
@@ -288,6 +371,12 @@ const vocab = {
     {emoji:'🍔',word:'Burger',zh:'漢堡',phonetic:'/ˈbɜːrɡər/'},
     {emoji:'🥚',word:'Egg',zh:'蛋',phonetic:'/eɡ/'},
     {emoji:'🍜',word:'Noodles',zh:'麵條',phonetic:'/ˈnuːdəlz/'},
+    {emoji:'🍇',word:'Grapes',zh:'葡萄',phonetic:'/ɡreɪps/'},
+    {emoji:'🥦',word:'Broccoli',zh:'花椰菜',phonetic:'/ˈbrɒkəli/'},
+    {emoji:'🍩',word:'Donut',zh:'甜甜圈',phonetic:'/ˈdoʊnʌt/'},
+    {emoji:'🧇',word:'Waffle',zh:'鬆餅',phonetic:'/ˈwɒfəl/'},
+    {emoji:'🍣',word:'Sushi',zh:'壽司',phonetic:'/ˈsuːʃi/'},
+    {emoji:'🌽',word:'Corn',zh:'玉米',phonetic:'/kɔːrn/'},
   ],
   colors: [
     {emoji:'🔴',word:'Red',zh:'紅色',phonetic:'/red/'},
@@ -316,6 +405,8 @@ const vocab = {
     {emoji:'💪',word:'Arm',zh:'手臂',phonetic:'/ɑːrm/'},
     {emoji:'❤️',word:'Heart',zh:'心臟',phonetic:'/hɑːrt/'},
     {emoji:'🫦',word:'Lip',zh:'嘴唇',phonetic:'/lɪp/'},
+    {emoji:'🧠',word:'Brain',zh:'大腦',phonetic:'/breɪn/'},
+    {emoji:'🦴',word:'Bone',zh:'骨頭',phonetic:'/boʊn/'},
   ],
   school: [
     {emoji:'📚',word:'Book',zh:'書',phonetic:'/bʊk/'},
@@ -330,15 +421,49 @@ const vocab = {
     {emoji:'🪑',word:'Chair',zh:'椅子',phonetic:'/tʃer/'},
     {emoji:'🖥️',word:'Computer',zh:'電腦',phonetic:'/kəmˈpjuːtər/'},
     {emoji:'✂️',word:'Scissors',zh:'剪刀',phonetic:'/ˈsɪzərz/'},
+    {emoji:'📌',word:'Pin',zh:'圖釘',phonetic:'/pɪn/'},
+    {emoji:'🔭',word:'Telescope',zh:'望遠鏡',phonetic:'/ˈtelɪskoʊp/'},
+    {emoji:'🔬',word:'Microscope',zh:'顯微鏡',phonetic:'/ˈmaɪkrəskoʊp/'},
+    {emoji:'🗺️',word:'Map',zh:'地圖',phonetic:'/mæp/'},
+  ],
+  aquatic: [
+    {emoji:'🐠',word:'Clownfish',zh:'小丑魚',phonetic:'/ˈklaʊnfɪʃ/'},
+    {emoji:'🐟',word:'Fish',zh:'魚',phonetic:'/fɪʃ/'},
+    {emoji:'🦈',word:'Shark',zh:'鯊魚',phonetic:'/ʃɑːrk/'},
+    {emoji:'🐬',word:'Dolphin',zh:'海豚',phonetic:'/ˈdɒlfɪn/'},
+    {emoji:'🐳',word:'Whale',zh:'鯨魚',phonetic:'/weɪl/'},
+    {emoji:'🦑',word:'Squid',zh:'魷魚',phonetic:'/skwɪd/'},
+    {emoji:'🐙',word:'Octopus',zh:'章魚',phonetic:'/ˈɒktəpəs/'},
+    {emoji:'🦀',word:'Crab',zh:'螃蟹',phonetic:'/kræb/'},
+    {emoji:'🦞',word:'Lobster',zh:'龍蝦',phonetic:'/ˈlɒbstər/'},
+    {emoji:'🦐',word:'Shrimp',zh:'蝦子',phonetic:'/ʃrɪmp/'},
+    {emoji:'🐡',word:'Blowfish',zh:'河豚',phonetic:'/ˈbloʊfɪʃ/'},
+    {emoji:'🦭',word:'Seal',zh:'海豹',phonetic:'/siːl/'},
+    {emoji:'🐊',word:'Alligator',zh:'短吻鱷',phonetic:'/ˈælɪɡeɪtər/'},
+    {emoji:'🦦',word:'Otter',zh:'水獺',phonetic:'/ˈɒtər/'},
+    {emoji:'🐢',word:'Sea Turtle',zh:'海龜',phonetic:'/siː ˈtɜːrtəl/'},
+    {emoji:'🪸',word:'Coral',zh:'珊瑚',phonetic:'/ˈkɒrəl/'},
+    {emoji:'🦪',word:'Oyster',zh:'牡蠣',phonetic:'/ˈɔɪstər/'},
+    {emoji:'🐚',word:'Shell',zh:'貝殼',phonetic:'/ʃel/'},
+    {emoji:'🌊',word:'Wave',zh:'海浪',phonetic:'/weɪv/'},
+    {emoji:'🐋',word:'Blue Whale',zh:'藍鯨',phonetic:'/bluː weɪl/'},
+    {emoji:'🦭',word:'Walrus',zh:'海象',phonetic:'/ˈwɔːlrəs/'},
+    {emoji:'🐠',word:'Angelfish',zh:'神仙魚',phonetic:'/ˈeɪndʒəlfɪʃ/'},
   ]
 };
 
-// ===== 學習卡片 =====
+// ===== STATE =====
 let currentCat = 'animals';
 let shownWords = {};
 let currentDisplay = {};
 let bookmarks = JSON.parse(sessionStorage.getItem('eng_bm') || '[]');
+let quizHistory = JSON.parse(sessionStorage.getItem('eng_hist') || '[]');
 
+// 確認總字數
+const totalWords = Object.values(vocab).flat().length;
+console.log('Total words:', totalWords);
+
+// ===== SPEECH =====
 function speak(word) {
   const url = `https://translate.googleapis.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(word)}&tl=en-US&client=gtx&ttsspeed=0.8`;
   const audio = new Audio(url);
@@ -354,10 +479,17 @@ function speakWeb(word) {
   speechSynthesis.speak(u);
 }
 
-function saveBM() {
-  sessionStorage.setItem('eng_bm', JSON.stringify(bookmarks));
-  document.getElementById('bookmark-badge').textContent = bookmarks.length;
+// ===== TOAST =====
+let toastT;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastT);
+  toastT = setTimeout(() => t.classList.remove('show'), 2200);
 }
+
+// ===== BOOKMARKS =====
+function saveBM() { sessionStorage.setItem('eng_bm', JSON.stringify(bookmarks)); document.getElementById('bookmark-badge').textContent = bookmarks.length; }
 function isBM(word) { return bookmarks.some(b => b.word === word); }
 function toggleBM(item, cat) {
   const idx = bookmarks.findIndex(b => b.word === item.word);
@@ -367,28 +499,19 @@ function toggleBM(item, cat) {
 }
 function updateAllSaveBtns(word) {
   document.querySelectorAll(`.save-btn[data-word="${word}"]`).forEach(btn => {
-    const bm = isBM(word);
-    btn.classList.toggle('saved', bm);
+    const bm = isBM(word); btn.classList.toggle('saved', bm);
     btn.textContent = bm ? '⭐ 已收藏' : '☆ 收藏';
   });
 }
-let toastT;
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.classList.add('show');
-  clearTimeout(toastT);
-  toastT = setTimeout(() => t.classList.remove('show'), 2200);
-}
+
+// ===== CARDS =====
 function initCat(cat) { if (!shownWords[cat]) shownWords[cat] = new Set(); }
 function getNextBatch(cat) {
   initCat(cat);
   const all = vocab[cat];
   const notSeen = all.filter(x => !shownWords[cat].has(x.word));
   let pool = notSeen.length >= 8 ? notSeen : all;
-  if (notSeen.length < 8) {
-    shownWords[cat] = new Set(); pool = all;
-    if (notSeen.length === 0) showToast('🎉 全部單字看完囉！重新開始！');
-  }
+  if (notSeen.length < 8) { shownWords[cat] = new Set(); pool = all; if (!notSeen.length) showToast('🎉 全部單字看完囉！重新開始！'); }
   const batch = [...pool].sort(() => Math.random() - 0.5).slice(0, 8);
   batch.forEach(x => shownWords[cat].add(x.word));
   return batch;
@@ -401,7 +524,7 @@ function renderCards(cat) {
 }
 function makeCard(item, cat, i, removable = false) {
   const card = document.createElement('div');
-  card.className = 'card'; card.dataset.cat = cat === 'bookmark' ? 'bookmark' : cat;
+  card.className = 'card'; card.dataset.cat = (cat === 'bookmark') ? 'bookmark' : cat;
   card.style.animationDelay = (i * 0.06) + 's';
   const bm = isBM(item.word);
   card.innerHTML = `
@@ -415,18 +538,12 @@ function makeCard(item, cat, i, removable = false) {
         ? `<button class="save-btn${bm?' saved':''}" data-word="${item.word}">${bm?'⭐ 已收藏':'☆ 收藏'}</button>`
         : `<button class="save-btn saved remove-btn" data-word="${item.word}">⭐ 移除</button>`}
     </div>`;
-  card.querySelector('.speak-btn').addEventListener('click', e => {
-    e.stopPropagation(); speak(item.word);
-    card.classList.remove('playing'); void card.offsetWidth; card.classList.add('playing');
-  });
+  card.querySelector('.speak-btn').addEventListener('click', e => { e.stopPropagation(); speak(item.word); card.classList.remove('playing'); void card.offsetWidth; card.classList.add('playing'); });
   const sb = card.querySelector('.save-btn');
   if (sb) sb.addEventListener('click', e => {
     e.stopPropagation();
-    if (removable) {
-      const idx = bookmarks.findIndex(b => b.word === item.word);
-      if (idx >= 0) { bookmarks.splice(idx, 1); saveBM(); renderBookmarks(); showToast(`❌ 已移除「${item.word}」`); }
-      updateAllSaveBtns(item.word);
-    } else { toggleBM(item, cat); }
+    if (removable) { const idx = bookmarks.findIndex(b => b.word === item.word); if (idx >= 0) { bookmarks.splice(idx, 1); saveBM(); renderBookmarks(); showToast(`❌ 已移除「${item.word}」`); } updateAllSaveBtns(item.word); }
+    else toggleBM(item, cat);
   });
   card.addEventListener('click', () => { speak(item.word); card.classList.remove('playing'); void card.offsetWidth; card.classList.add('playing'); });
   return card;
@@ -440,113 +557,183 @@ function renderBookmarks() {
   bookmarks.forEach((item, i) => grid.appendChild(makeCard(item, 'bookmark', i, true)));
 }
 
-// ===== 測驗邏輯（修正版）=====
+// ===== 測驗邏輯 =====
 const TOTAL_Q = 10;
-let quizPool = [];    // 隨機10題
-let quizIndex = 0;    // 目前題號（0-based）
-let quizCorrect = 0;  // 答對題數
-let quizDone = false; // 是否已作答本題
+let quizPool = [], quizIndex = 0, quizCorrect = 0, quizDone = false;
+let quizStartTime = null;
 
 function buildQuiz() {
   const all = Object.values(vocab).flat();
-  // 隨機取10題，不重複
   quizPool = [...all].sort(() => Math.random() - 0.5).slice(0, TOTAL_Q);
-  quizIndex = 0;
-  quizCorrect = 0;
-  quizDone = false;
-
+  quizIndex = 0; quizCorrect = 0; quizDone = false;
+  quizStartTime = Date.now();
   document.getElementById('quiz-playing').style.display = 'block';
   document.getElementById('quiz-result').classList.remove('show');
-  updateHeader();
-  renderQuestion();
+  updateHeader(); renderQuestion();
 }
-
 function updateHeader() {
   document.getElementById('correct-count').textContent = quizCorrect;
   document.getElementById('score-pts').innerHTML = `${quizCorrect * 10} <small>分</small>`;
   document.getElementById('progress-text').textContent = `${quizIndex} / ${TOTAL_Q}`;
   document.getElementById('progress-fill').style.width = `${(quizIndex / TOTAL_Q) * 100}%`;
 }
-
 function renderQuestion() {
   quizDone = false;
   document.getElementById('quiz-feedback').textContent = '';
-
   const item = quizPool[quizIndex];
   document.getElementById('quiz-emoji').textContent = item.emoji;
-
   const all = Object.values(vocab).flat();
-  const opts = [item, ...all.filter(x => x.word !== item.word).sort(() => Math.random() - 0.5).slice(0, 3)]
-    .sort(() => Math.random() - 0.5);
-
+  const opts = [item, ...all.filter(x => x.word !== item.word).sort(() => Math.random() - 0.5).slice(0, 3)].sort(() => Math.random() - 0.5);
   const con = document.getElementById('quiz-options');
   con.innerHTML = '';
   opts.forEach(opt => {
     const btn = document.createElement('button');
-    btn.className = 'quiz-opt';
-    btn.textContent = opt.word;
+    btn.className = 'quiz-opt'; btn.textContent = opt.word;
     btn.addEventListener('click', () => handleAnswer(btn, opt.word, item.word));
     con.appendChild(btn);
   });
 }
-
 function handleAnswer(btn, chosen, correct) {
-  if (quizDone) return;
-  quizDone = true;
-
-  // 停用所有選項，防止重複點擊
+  if (quizDone) return; quizDone = true;
   document.querySelectorAll('.quiz-opt').forEach(o => o.disabled = true);
-
-  // 標示正確答案
-  document.querySelectorAll('.quiz-opt').forEach(o => {
-    if (o.textContent === correct) o.classList.add('correct');
-  });
-
-  const isCorrect = (chosen === correct);
-  if (isCorrect) {
-    quizCorrect++;
-    btn.classList.add('correct', 'pop');
-    document.getElementById('quiz-feedback').innerHTML = '🎉 答對了！Great job!';
-  } else {
-    btn.classList.add('wrong', 'pop');
-    document.getElementById('quiz-feedback').innerHTML = '💪 再加油！Keep trying!';
-  }
-
-  speak(correct);
-  quizIndex++;
-  updateHeader();
-
-  // 1.1秒後自動進入下一題或顯示結果
-  setTimeout(() => {
-    if (quizIndex < TOTAL_Q) {
-      renderQuestion();
-    } else {
-      showResult();
-    }
-  }, 1100);
+  document.querySelectorAll('.quiz-opt').forEach(o => { if (o.textContent === correct) o.classList.add('correct'); });
+  const isCorrect = chosen === correct;
+  if (isCorrect) { quizCorrect++; btn.classList.add('correct', 'pop'); document.getElementById('quiz-feedback').innerHTML = '🎉 答對了！Great job!'; }
+  else { btn.classList.add('wrong', 'pop'); document.getElementById('quiz-feedback').innerHTML = '💪 再加油！Keep trying!'; }
+  speak(correct); quizIndex++; updateHeader();
+  setTimeout(() => { quizIndex < TOTAL_Q ? renderQuestion() : showResult(); }, 1100);
 }
 
 function showResult() {
   document.getElementById('quiz-playing').style.display = 'none';
-  const result = document.getElementById('quiz-result');
-  result.classList.add('show');
-
+  document.getElementById('quiz-result').classList.add('show');
   const pts = quizCorrect * 10;
+  const elapsed = Math.round((Date.now() - quizStartTime) / 1000);
+  const now = new Date();
+  const dateStr = `${now.getFullYear()}/${String(now.getMonth()+1).padStart(2,'0')}/${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+
+  // 存入歷史
+  const record = { pts, correct: quizCorrect, total: TOTAL_Q, date: dateStr, elapsed };
+  quizHistory.unshift(record);
+  if (quizHistory.length > 50) quizHistory = quizHistory.slice(0, 50);
+  sessionStorage.setItem('eng_hist', JSON.stringify(quizHistory));
+
   document.getElementById('result-pts').innerHTML = `${pts} <small>分</small>`;
-  document.getElementById('result-detail').textContent = `答對 ${quizCorrect} 題，共 ${TOTAL_Q} 題`;
+  document.getElementById('result-detail').textContent = `完成時間：${elapsed} 秒　${dateStr}`;
+  document.getElementById('r-correct').textContent = quizCorrect;
+  document.getElementById('r-wrong').textContent = TOTAL_Q - quizCorrect;
+  document.getElementById('r-pct').textContent = pts + '%';
+
+  // 歷史排名
+  const sortedPts = quizHistory.map(r => r.pts).sort((a,b) => b-a);
+  const rank = sortedPts.indexOf(pts) + 1;
+  document.getElementById('r-rank').textContent = '#' + rank;
 
   let emoji, msg;
-  if (pts === 100)    { emoji = '🏆'; msg = '完美滿分！！太厲害了！Perfect！'; }
+  if (pts === 100)    { emoji = '🏆'; msg = '完美滿分！Perfect！'; }
   else if (pts >= 80) { emoji = '🎉'; msg = '非常棒！Great job！'; }
   else if (pts >= 60) { emoji = '😊'; msg = '不錯喔！Keep it up！'; }
   else if (pts >= 40) { emoji = '💪'; msg = '繼續加油！You can do it！'; }
-  else                { emoji = '📚'; msg = '多練習就會進步！Practice more！'; }
-
+  else                { emoji = '📚'; msg = '多練習就會進步！'; }
   document.getElementById('result-emoji').textContent = emoji;
   document.getElementById('result-msg').textContent = msg;
 }
 
-// ===== 事件 =====
+// ===== 截圖功能 =====
+function takeScreenshot() {
+  const target = document.getElementById('result-card');
+  showToast('📸 截圖中...');
+  html2canvas(target, { scale: 2, backgroundColor: '#fff9f0', useCORS: true }).then(canvas => {
+    const imgUrl = canvas.toDataURL('image/png');
+    document.getElementById('ss-preview').src = imgUrl;
+    document.getElementById('screenshot-overlay').classList.add('show');
+    // 儲存連結
+    document.getElementById('ss-save-btn').onclick = () => {
+      const a = document.createElement('a');
+      a.href = imgUrl;
+      a.download = `英文小測驗_${quizCorrect*10}分_${new Date().toLocaleDateString('zh-TW')}.png`;
+      a.click();
+      showToast('✅ 圖片已儲存！');
+    };
+  }).catch(() => showToast('❌ 截圖失敗，請重試'));
+}
+
+// ===== 匯出單筆成績 =====
+function exportThisResult() {
+  if (!quizHistory.length) return;
+  const r = quizHistory[0];
+  const text = `📊 Fun English 測驗成績\n${'='.repeat(30)}\n日期：${r.date}\n分數：${r.pts} 分\n答對：${r.correct} / ${r.total} 題\n正確率：${r.pts}%\n用時：${r.elapsed} 秒\n${'='.repeat(30)}\n由 Fun English 英文小天地 產生`;
+  const blob = new Blob([text], {type: 'text/plain;charset=utf-8'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = `成績_${r.pts}分_${r.date.replace(/[/:]/g,'-')}.txt`;
+  a.click(); showToast('💾 成績已匯出！');
+}
+
+// ===== 匯出 CSV =====
+function exportCSV() {
+  if (!quizHistory.length) { showToast('❌ 還沒有測驗紀錄！'); return; }
+  const header = '日期,分數,答對題數,總題數,正確率(%),用時(秒)\n';
+  const rows = quizHistory.map(r => `${r.date},${r.pts},${r.correct},${r.total},${r.pts},${r.elapsed}`).join('\n');
+  const bom = '\uFEFF'; // UTF-8 BOM for Excel
+  const blob = new Blob([bom + header + rows], {type: 'text/csv;charset=utf-8'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = `Fun_English_成績紀錄_${new Date().toLocaleDateString('zh-TW').replace(/\//g,'-')}.csv`;
+  a.click(); showToast('📥 CSV 已匯出！可用 Excel 開啟');
+}
+
+// ===== 統計頁面 =====
+function renderStats() {
+  const hist = quizHistory;
+  document.getElementById('st-total').textContent = hist.length;
+  if (!hist.length) {
+    document.getElementById('st-best').textContent = '-';
+    document.getElementById('st-avg').textContent = '-';
+    document.getElementById('st-perfect').textContent = '0';
+    document.getElementById('history-list').innerHTML = '<div class="empty-history">還沒有測驗紀錄，快去挑戰看看吧！🎮</div>';
+    document.getElementById('bar-chart').innerHTML = '';
+    return;
+  }
+  const pts = hist.map(r => r.pts);
+  const best = Math.max(...pts);
+  const avg = Math.round(pts.reduce((a,b) => a+b, 0) / pts.length);
+  const perfect = pts.filter(p => p === 100).length;
+  document.getElementById('st-best').textContent = best;
+  document.getElementById('st-avg').textContent = avg;
+  document.getElementById('st-perfect').textContent = perfect;
+
+  // 長條圖（最近10次）
+  const recent = hist.slice(0, 10).reverse();
+  const chart = document.getElementById('bar-chart');
+  chart.innerHTML = '';
+  const maxPts = 100;
+  recent.forEach((r, i) => {
+    const wrap = document.createElement('div'); wrap.className = 'bar-wrap';
+    const val = document.createElement('div'); val.className = 'bar-val'; val.textContent = r.pts;
+    const bar = document.createElement('div'); bar.className = 'bar';
+    bar.style.height = `${(r.pts / maxPts) * 90}px`;
+    if (r.pts === 100) bar.style.background = 'linear-gradient(180deg, #FFD700, #FF8C42)';
+    else if (r.pts >= 80) bar.style.background = 'linear-gradient(180deg, #27AE60, #1ABC9C)';
+    else if (r.pts >= 60) bar.style.background = 'linear-gradient(180deg, #2980B9, #3498DB)';
+    const label = document.createElement('div'); label.className = 'bar-label'; label.textContent = `#${i+1}`;
+    wrap.appendChild(val); wrap.appendChild(bar); wrap.appendChild(label);
+    chart.appendChild(wrap);
+  });
+
+  // 歷史清單
+  const list = document.getElementById('history-list');
+  list.innerHTML = '';
+  hist.forEach((r, i) => {
+    const item = document.createElement('div'); item.className = 'history-item';
+    let cls = r.pts === 100 ? 'perfect' : r.pts >= 80 ? 'great' : r.pts >= 60 ? 'ok' : 'low';
+    item.innerHTML = `
+      <span class="history-score ${cls}">${r.pts}分</span>
+      <span class="history-correct">${r.correct}/${r.total} 題</span>
+      <span class="history-meta">${r.date}　${r.elapsed}秒</span>`;
+    list.appendChild(item);
+  });
+}
+
+// ===== 事件綁定 =====
 document.querySelectorAll('.page-nav-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.page-nav-btn').forEach(b => b.classList.remove('active'));
@@ -554,22 +741,23 @@ document.querySelectorAll('.page-nav-btn').forEach(btn => {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.getElementById('page-' + btn.dataset.page).classList.add('active');
     if (btn.dataset.page === 'bookmarks') renderBookmarks();
+    if (btn.dataset.page === 'stats') renderStats();
   });
 });
 document.querySelectorAll('.tab-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    currentCat = btn.dataset.cat;
-    renderCards(currentCat);
+    btn.classList.add('active'); currentCat = btn.dataset.cat; renderCards(currentCat);
   });
 });
-document.getElementById('refresh-cards-btn').addEventListener('click', () => {
-  currentDisplay[currentCat] = getNextBatch(currentCat);
-  renderCards(currentCat);
-});
-document.getElementById('quiz-refresh-btn').addEventListener('click', () => {
-  buildQuiz(); showToast('🔄 題目重新洗牌了！');
+document.getElementById('refresh-cards-btn').addEventListener('click', () => { currentDisplay[currentCat] = getNextBatch(currentCat); renderCards(currentCat); });
+document.getElementById('quiz-refresh-btn').addEventListener('click', () => { buildQuiz(); showToast('🔄 題目重新洗牌了！'); });
+document.getElementById('screenshot-btn').addEventListener('click', takeScreenshot);
+document.getElementById('export-this-btn').addEventListener('click', exportThisResult);
+document.getElementById('export-csv-btn').addEventListener('click', exportCSV);
+document.getElementById('clear-history-btn').addEventListener('click', () => {
+  if (!quizHistory.length) return;
+  if (confirm('確定清除所有測驗紀錄嗎？')) { quizHistory = []; sessionStorage.setItem('eng_hist', '[]'); renderStats(); showToast('🗑️ 已清除所有紀錄'); }
 });
 document.getElementById('clear-all-btn').addEventListener('click', () => {
   if (!bookmarks.length) return;
@@ -579,8 +767,10 @@ document.getElementById('clear-all-btn').addEventListener('click', () => {
     showToast('🗑️ 已清除全部收藏');
   }
 });
+document.getElementById('ss-close-btn').addEventListener('click', () => document.getElementById('screenshot-overlay').classList.remove('show'));
+document.getElementById('screenshot-overlay').addEventListener('click', e => { if (e.target === e.currentTarget) e.currentTarget.classList.remove('show'); });
 
-// 初始化
+// ===== 初始化 =====
 document.getElementById('bookmark-badge').textContent = bookmarks.length;
 renderCards(currentCat);
 buildQuiz();
