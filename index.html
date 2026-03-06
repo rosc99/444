@@ -32,18 +32,15 @@
     header p { font-size: 1rem; color: white; margin-top: 5px; text-shadow: 1px 1px 3px rgba(0,0,0,0.3); font-weight: 700; }
     @keyframes bounceIn { 0% { transform: scale(0.3); opacity: 0; } 60% { transform: scale(1.1); } 100% { transform: scale(1); opacity: 1; } }
 
-    /* PAGE NAV */
     .page-nav { display: flex; justify-content: center; gap: 10px; padding: 10px 20px; position: relative; z-index: 10; flex-wrap: wrap; }
     .page-nav-btn { background: rgba(255,255,255,0.28); border: 3px solid white; border-radius: 30px; padding: 8px 20px; font-family: 'Nunito', sans-serif; font-size: 0.95rem; font-weight: 800; color: white; cursor: pointer; transition: all 0.25s; backdrop-filter: blur(4px); display: flex; align-items: center; gap: 5px; }
     .page-nav-btn:hover { background: rgba(255,255,255,0.5); transform: translateY(-2px); }
     .page-nav-btn.active { background: white; color: var(--dark); box-shadow: 0 5px 15px rgba(0,0,0,0.15); transform: translateY(-2px); }
     .badge { background: #E74C3C; color: white; border-radius: 50%; width: 20px; height: 20px; font-size: 0.68rem; display: inline-flex; align-items: center; justify-content: center; }
 
-    /* PAGES */
     .page { display: none; }
     .page.active { display: block; }
 
-    /* TOOLBAR */
     .toolbar { position: relative; z-index: 10; max-width: 1100px; margin: 0 auto; padding: 6px 20px 8px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
     .toolbar-left { display: flex; gap: 7px; flex-wrap: wrap; }
     .tab-btn { background: white; border: 3px solid transparent; border-radius: 30px; padding: 6px 15px; font-family: 'Nunito', sans-serif; font-size: 0.88rem; font-weight: 800; cursor: pointer; transition: all 0.25s; box-shadow: 0 4px 0 rgba(0,0,0,0.15); }
@@ -60,7 +57,6 @@
     .refresh-icon { display: inline-block; transition: transform 0.5s; }
     .refresh-btn:hover .refresh-icon { transform: rotate(180deg); }
 
-    /* CARDS */
     .cards-section { position: relative; z-index: 10; max-width: 1100px; margin: 0 auto; padding: 8px 20px 80px; }
     .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(172px, 1fr)); gap: 16px; }
 
@@ -83,7 +79,6 @@
     .save-btn.saved { color: #F39C12 !important; border-color: #F39C12 !important; }
     .save-btn.saved:hover { background: #F39C12 !important; color: white !important; }
 
-    /* Card color variants */
     .card[data-cat="animals"]::before { background: #E74C3C; }
     .card[data-cat="animals"] .speak-btn { color:#E74C3C; border-color:#E74C3C; } .card[data-cat="animals"] .speak-btn:hover { background:#E74C3C; color:white; }
     .card[data-cat="animals"] .save-btn { color:#E74C3C; border-color:#E74C3C; } .card[data-cat="animals"] .save-btn:hover { background:#E74C3C; color:white; }
@@ -102,29 +97,48 @@
     .card[data-cat="bookmark"]::before { background: #F39C12; }
     .card[data-cat="bookmark"] .speak-btn { color:#F39C12; border-color:#F39C12; } .card[data-cat="bookmark"] .speak-btn:hover { background:#F39C12; color:white; }
 
-    /* QUIZ */
+    /* ===== QUIZ ===== */
     .quiz-section { position: relative; z-index: 10; max-width: 580px; margin: 0 auto 80px; padding: 5px 20px; }
-    .quiz-box { background: white; border-radius: 26px; padding: 22px; box-shadow: 0 8px 0 rgba(0,0,0,0.12), 0 15px 40px rgba(0,0,0,0.1); text-align: center; }
+    .quiz-box { background: white; border-radius: 26px; padding: 24px 22px 20px; box-shadow: 0 8px 0 rgba(0,0,0,0.12), 0 15px 40px rgba(0,0,0,0.1); text-align: center; }
     .quiz-box h2 { font-family: 'Bubblegum Sans', cursive; font-size: 1.6rem; color: var(--dark); margin-bottom: 12px; }
-    .quiz-emoji { font-size: 4.2rem; margin: 6px 0 3px; display: block; }
+
+    .quiz-progress-wrap { margin-bottom: 8px; }
+    .quiz-progress-label { display: flex; justify-content: space-between; font-size: 0.78rem; font-weight: 800; color: #aaa; margin-bottom: 5px; }
+    .quiz-progress-bar { height: 8px; background: #F0F0F0; border-radius: 99px; overflow: hidden; }
+    .quiz-progress-fill { height: 100%; background: linear-gradient(90deg, #FF6EB4, #FF8C42); border-radius: 99px; transition: width 0.4s ease; }
+
+    .quiz-score-row { display: flex; align-items: center; justify-content: center; gap: 16px; margin-bottom: 8px; }
+    .quiz-counter { font-size: 0.88rem; font-weight: 800; color: #999; }
+    .quiz-score-pts { font-family: 'Bubblegum Sans', cursive; font-size: 1.6rem; color: #FF6EB4; }
+    .quiz-score-pts small { font-size: 0.85rem; color: #bbb; font-family: 'Nunito', sans-serif; font-weight: 800; }
+
+    .quiz-emoji { font-size: 4.2rem; margin: 4px 0 2px; display: block; }
     .quiz-question { font-size: 0.92rem; font-weight: 700; color: #666; margin-bottom: 14px; }
-    .quiz-options { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin-bottom: 10px; }
+    .quiz-options { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin-bottom: 12px; }
     .quiz-opt { background: #F0F4FF; border: 3px solid #D0D8FF; border-radius: 14px; padding: 10px; font-family: 'Bubblegum Sans', cursive; font-size: 1rem; color: var(--dark); cursor: pointer; transition: all 0.2s; }
-    .quiz-opt:hover { background: #D8E0FF; transform: scale(1.04); }
+    .quiz-opt:hover:not(:disabled) { background: #D8E0FF; transform: scale(1.04); }
+    .quiz-opt:disabled { cursor: default; }
     .quiz-opt.correct { background: #ABEBC6; border-color: #27AE60; color: #1E8449; }
     .quiz-opt.wrong { background: #FADBD8; border-color: #E74C3C; color: #C0392B; }
-    .quiz-feedback { font-size: 1.2rem; font-weight: 900; min-height: 35px; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 4px; }
-    .quiz-score { font-size: 0.85rem; color: #888; font-weight: 700; margin-bottom: 6px; }
-    .stars-container { display: flex; justify-content: center; gap: 5px; margin: 6px 0; }
-    .star { font-size: 1.4rem; opacity: 0.3; transition: opacity 0.3s, transform 0.3s; }
-    .star.earned { opacity: 1; transform: scale(1.2); }
-    .quiz-toolbar { display: flex; gap: 8px; justify-content: center; margin-top: 8px; flex-wrap: wrap; }
-    #next-btn, #quiz-refresh-btn { border: none; border-radius: 28px; padding: 8px 20px; font-family: 'Bubblegum Sans', cursive; font-size: 0.95rem; cursor: pointer; box-shadow: 0 5px 0 rgba(0,0,0,0.2); transition: all 0.2s; }
-    #next-btn { background: linear-gradient(135deg, #FF6EB4, #FF8C42); color: white; }
-    #quiz-refresh-btn { background: linear-gradient(135deg, #1ABC9C, #2980B9); color: white; }
-    #next-btn:hover, #quiz-refresh-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 0 rgba(0,0,0,0.2); }
+    .quiz-opt.pop { animation: optPop 0.3s ease; }
+    @keyframes optPop { 0%,100% { transform: scale(1); } 50% { transform: scale(1.07); } }
 
-    /* BOOKMARKS PAGE */
+    .quiz-feedback { font-size: 1.1rem; font-weight: 900; min-height: 32px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+
+    /* 結果畫面 */
+    .quiz-result { display: none; text-align: center; padding: 8px 0 4px; }
+    .quiz-result.show { display: block; }
+    .result-emoji-big { font-size: 4.5rem; display: block; margin-bottom: 6px; }
+    .result-pts { font-family: 'Bubblegum Sans', cursive; font-size: 4rem; color: #FF6EB4; line-height: 1; }
+    .result-pts small { font-size: 1.3rem; color: #bbb; font-family: 'Nunito', sans-serif; font-weight: 800; }
+    .result-msg { font-size: 1.1rem; font-weight: 800; color: var(--dark); margin: 8px 0 4px; }
+    .result-detail { font-size: 0.83rem; color: #aaa; margin-bottom: 18px; }
+
+    .quiz-toolbar { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+    #quiz-refresh-btn { border: none; border-radius: 28px; padding: 10px 26px; font-family: 'Bubblegum Sans', cursive; font-size: 1rem; cursor: pointer; box-shadow: 0 5px 0 rgba(0,0,0,0.2); transition: all 0.2s; background: linear-gradient(135deg, #FF6EB4, #FF8C42); color: white; }
+    #quiz-refresh-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 0 rgba(0,0,0,0.2); }
+
+    /* BOOKMARKS */
     .bookmarks-page { position: relative; z-index: 10; max-width: 1100px; margin: 0 auto; padding: 12px 20px 80px; }
     .bookmarks-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
     .bookmarks-title { font-family: 'Bubblegum Sans', cursive; font-size: 1.7rem; color: white; text-shadow: 2px 2px 0 rgba(0,0,0,0.15); }
@@ -135,7 +149,6 @@
     .empty-state p { font-size: 1.05rem; color: var(--dark); font-weight: 700; }
     .empty-state small { color: #888; font-size: 0.88rem; }
 
-    /* TOAST */
     .toast { position: fixed; bottom: 75px; left: 50%; transform: translateX(-50%) translateY(20px); background: rgba(44,62,80,0.92); color: white; padding: 9px 22px; border-radius: 28px; font-weight: 800; font-size: 0.92rem; z-index: 999; opacity: 0; transition: opacity 0.3s, transform 0.3s; pointer-events: none; white-space: nowrap; }
     .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
@@ -190,19 +203,38 @@
   <div class="quiz-section">
     <div class="quiz-box">
       <h2>🎮 小測驗</h2>
-      <div class="quiz-score">得分：<span id="score">0</span> ／ <span id="total">0</span></div>
-      <div class="stars-container">
-        <span class="star" id="s1">⭐</span><span class="star" id="s2">⭐</span>
-        <span class="star" id="s3">⭐</span><span class="star" id="s4">⭐</span>
-        <span class="star" id="s5">⭐</span>
+
+      <!-- 進行中畫面 -->
+      <div id="quiz-playing">
+        <div class="quiz-progress-wrap">
+          <div class="quiz-progress-label">
+            <span>答題進度</span>
+            <span id="progress-text">0 / 10</span>
+          </div>
+          <div class="quiz-progress-bar">
+            <div class="quiz-progress-fill" id="progress-fill" style="width:0%"></div>
+          </div>
+        </div>
+        <div class="quiz-score-row">
+          <span class="quiz-counter">答對 <strong id="correct-count">0</strong> 題</span>
+          <span class="quiz-score-pts" id="score-pts">0 <small>分</small></span>
+          <span class="quiz-counter">共 10 題</span>
+        </div>
+        <span class="quiz-emoji" id="quiz-emoji">🐶</span>
+        <p class="quiz-question">這個圖片的英文是什麼？</p>
+        <div class="quiz-options" id="quiz-options"></div>
+        <div class="quiz-feedback" id="quiz-feedback"></div>
       </div>
-      <span class="quiz-emoji" id="quiz-emoji">🐶</span>
-      <p class="quiz-question">這個圖片的英文是什麼？</p>
-      <div class="quiz-options" id="quiz-options"></div>
-      <div class="quiz-feedback" id="quiz-feedback"></div>
-      <div class="quiz-toolbar">
-        <button id="next-btn">下一題 →</button>
-        <button id="quiz-refresh-btn">🔄 重新出題</button>
+
+      <!-- 結果畫面 -->
+      <div class="quiz-result" id="quiz-result">
+        <span class="result-emoji-big" id="result-emoji">🎉</span>
+        <div class="result-pts" id="result-pts">0 <small>分</small></div>
+        <div class="result-msg" id="result-msg"></div>
+        <div class="result-detail" id="result-detail"></div>
+        <div class="quiz-toolbar">
+          <button id="quiz-refresh-btn">🔄 再玩一次</button>
+        </div>
       </div>
     </div>
   </div>
@@ -301,24 +333,19 @@ const vocab = {
   ]
 };
 
-// STATE
+// ===== 學習卡片 =====
 let currentCat = 'animals';
-let shownWords = {}; // cat -> Set of shown word strings
-let currentDisplay = {}; // cat -> current array of 8
+let shownWords = {};
+let currentDisplay = {};
 let bookmarks = JSON.parse(sessionStorage.getItem('eng_bm') || '[]');
-let score = 0, total = 0;
-let quizPool = [], quizIndex = 0, answered = false;
 
-// SPEECH — uses multiple TTS options
 function speak(word) {
-  // Option 1: Google Translate TTS
-  const gttsUrl = `https://translate.googleapis.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(word)}&tl=en-US&client=gtx&ttsspeed=0.8`;
-  const audio = new Audio(gttsUrl);
+  const url = `https://translate.googleapis.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(word)}&tl=en-US&client=gtx&ttsspeed=0.8`;
+  const audio = new Audio(url);
   audio.onerror = () => speakWeb(word);
   const p = audio.play();
   if (p) p.catch(() => speakWeb(word));
 }
-
 function speakWeb(word) {
   if (!window.speechSynthesis) return;
   speechSynthesis.cancel();
@@ -327,7 +354,6 @@ function speakWeb(word) {
   speechSynthesis.speak(u);
 }
 
-// BOOKMARKS
 function saveBM() {
   sessionStorage.setItem('eng_bm', JSON.stringify(bookmarks));
   document.getElementById('bookmark-badge').textContent = bookmarks.length;
@@ -335,16 +361,9 @@ function saveBM() {
 function isBM(word) { return bookmarks.some(b => b.word === word); }
 function toggleBM(item, cat) {
   const idx = bookmarks.findIndex(b => b.word === item.word);
-  if (idx >= 0) {
-    bookmarks.splice(idx, 1);
-    showToast(`❌ 已移除「${item.word}」`);
-  } else {
-    bookmarks.push({...item, cat});
-    showToast(`⭐ 已收藏「${item.word}」！`);
-  }
-  saveBM();
-  updateAllSaveBtns(item.word);
-  renderBookmarks();
+  if (idx >= 0) { bookmarks.splice(idx, 1); showToast(`❌ 已移除「${item.word}」`); }
+  else { bookmarks.push({...item, cat}); showToast(`⭐ 已收藏「${item.word}」！`); }
+  saveBM(); updateAllSaveBtns(item.word); renderBookmarks();
 }
 function updateAllSaveBtns(word) {
   document.querySelectorAll(`.save-btn[data-word="${word}"]`).forEach(btn => {
@@ -353,8 +372,6 @@ function updateAllSaveBtns(word) {
     btn.textContent = bm ? '⭐ 已收藏' : '☆ 收藏';
   });
 }
-
-// TOAST
 let toastT;
 function showToast(msg) {
   const t = document.getElementById('toast');
@@ -362,46 +379,29 @@ function showToast(msg) {
   clearTimeout(toastT);
   toastT = setTimeout(() => t.classList.remove('show'), 2200);
 }
-
-// WORD DISPLAY with no-repeat shuffle
-function initCat(cat) {
-  if (!shownWords[cat]) shownWords[cat] = new Set();
-}
+function initCat(cat) { if (!shownWords[cat]) shownWords[cat] = new Set(); }
 function getNextBatch(cat) {
   initCat(cat);
   const all = vocab[cat];
   const notSeen = all.filter(x => !shownWords[cat].has(x.word));
-  let pool = notSeen.length >= 8 ? notSeen : all; // reset if exhausted
-  if (notSeen.length < 8 && notSeen.length > 0) {
-    // can show remaining unseen + reset
-    shownWords[cat] = new Set();
-    pool = all;
-    showToast('🎉 全部單字看完囉！重新開始！');
-  } else if (notSeen.length === 0) {
-    shownWords[cat] = new Set();
-    pool = all;
-    showToast('🎉 全部單字看完囉！重新開始！');
+  let pool = notSeen.length >= 8 ? notSeen : all;
+  if (notSeen.length < 8) {
+    shownWords[cat] = new Set(); pool = all;
+    if (notSeen.length === 0) showToast('🎉 全部單字看完囉！重新開始！');
   }
-  const shuffled = [...pool].sort(() => Math.random() - 0.5);
-  const batch = shuffled.slice(0, Math.min(8, shuffled.length));
+  const batch = [...pool].sort(() => Math.random() - 0.5).slice(0, 8);
   batch.forEach(x => shownWords[cat].add(x.word));
   return batch;
 }
-
-// RENDER CARDS
 function renderCards(cat) {
   if (!currentDisplay[cat]) currentDisplay[cat] = getNextBatch(cat);
   const grid = document.getElementById('cards-grid');
   grid.innerHTML = '';
-  currentDisplay[cat].forEach((item, i) => {
-    grid.appendChild(makeCard(item, cat, i));
-  });
+  currentDisplay[cat].forEach((item, i) => grid.appendChild(makeCard(item, cat, i)));
 }
-
 function makeCard(item, cat, i, removable = false) {
   const card = document.createElement('div');
-  card.className = 'card';
-  card.dataset.cat = cat === 'bookmark' ? 'bookmark' : cat;
+  card.className = 'card'; card.dataset.cat = cat === 'bookmark' ? 'bookmark' : cat;
   card.style.animationDelay = (i * 0.06) + 's';
   const bm = isBM(item.word);
   card.innerHTML = `
@@ -411,94 +411,151 @@ function makeCard(item, cat, i, removable = false) {
     <span class="card-zh">${item.zh}</span>
     <div class="card-btns">
       <button class="speak-btn" data-word="${item.word}">🔊 發音</button>
-      ${!removable ? `<button class="save-btn${bm?' saved':''}" data-word="${item.word}">${bm?'⭐ 已收藏':'☆ 收藏'}</button>` : `<button class="save-btn saved remove-btn" data-word="${item.word}">⭐ 移除</button>`}
-    </div>
-  `;
+      ${!removable
+        ? `<button class="save-btn${bm?' saved':''}" data-word="${item.word}">${bm?'⭐ 已收藏':'☆ 收藏'}</button>`
+        : `<button class="save-btn saved remove-btn" data-word="${item.word}">⭐ 移除</button>`}
+    </div>`;
   card.querySelector('.speak-btn').addEventListener('click', e => {
     e.stopPropagation(); speak(item.word);
     card.classList.remove('playing'); void card.offsetWidth; card.classList.add('playing');
   });
   const sb = card.querySelector('.save-btn');
-  if (sb) {
-    sb.addEventListener('click', e => {
-      e.stopPropagation();
-      if (removable) {
-        const idx = bookmarks.findIndex(b => b.word === item.word);
-        if (idx >= 0) { bookmarks.splice(idx, 1); saveBM(); renderBookmarks(); showToast(`❌ 已移除「${item.word}」`); }
-        updateAllSaveBtns(item.word);
-      } else {
-        toggleBM(item, cat);
-      }
-    });
-  }
+  if (sb) sb.addEventListener('click', e => {
+    e.stopPropagation();
+    if (removable) {
+      const idx = bookmarks.findIndex(b => b.word === item.word);
+      if (idx >= 0) { bookmarks.splice(idx, 1); saveBM(); renderBookmarks(); showToast(`❌ 已移除「${item.word}」`); }
+      updateAllSaveBtns(item.word);
+    } else { toggleBM(item, cat); }
+  });
   card.addEventListener('click', () => { speak(item.word); card.classList.remove('playing'); void card.offsetWidth; card.classList.add('playing'); });
   return card;
 }
-
-// RENDER BOOKMARKS
 function renderBookmarks() {
   const grid = document.getElementById('bookmarks-grid');
   const empty = document.getElementById('empty-state');
   grid.innerHTML = '';
-  if (bookmarks.length === 0) { empty.style.display = 'block'; return; }
+  if (!bookmarks.length) { empty.style.display = 'block'; return; }
   empty.style.display = 'none';
   bookmarks.forEach((item, i) => grid.appendChild(makeCard(item, 'bookmark', i, true)));
 }
 
-// QUIZ
+// ===== 測驗邏輯（修正版）=====
+const TOTAL_Q = 10;
+let quizPool = [];    // 隨機10題
+let quizIndex = 0;    // 目前題號（0-based）
+let quizCorrect = 0;  // 答對題數
+let quizDone = false; // 是否已作答本題
+
 function buildQuiz() {
   const all = Object.values(vocab).flat();
-  quizPool = [...all].sort(() => Math.random() - 0.5);
-  quizIndex = 0; score = 0; total = 0;
-  document.getElementById('score').textContent = 0;
-  document.getElementById('total').textContent = 0;
-  document.getElementById('quiz-feedback').textContent = '';
-  for (let i = 1; i <= 5; i++) document.getElementById('s'+i).classList.remove('earned');
+  // 隨機取10題，不重複
+  quizPool = [...all].sort(() => Math.random() - 0.5).slice(0, TOTAL_Q);
+  quizIndex = 0;
+  quizCorrect = 0;
+  quizDone = false;
+
+  document.getElementById('quiz-playing').style.display = 'block';
+  document.getElementById('quiz-result').classList.remove('show');
+  updateHeader();
+  renderQuestion();
 }
-function showQuiz() {
-  answered = false;
+
+function updateHeader() {
+  document.getElementById('correct-count').textContent = quizCorrect;
+  document.getElementById('score-pts').innerHTML = `${quizCorrect * 10} <small>分</small>`;
+  document.getElementById('progress-text').textContent = `${quizIndex} / ${TOTAL_Q}`;
+  document.getElementById('progress-fill').style.width = `${(quizIndex / TOTAL_Q) * 100}%`;
+}
+
+function renderQuestion() {
+  quizDone = false;
   document.getElementById('quiz-feedback').textContent = '';
-  const item = quizPool[quizIndex % quizPool.length];
+
+  const item = quizPool[quizIndex];
   document.getElementById('quiz-emoji').textContent = item.emoji;
+
   const all = Object.values(vocab).flat();
-  const opts = [item, ...all.filter(x=>x.word!==item.word).sort(()=>Math.random()-0.5).slice(0,3)].sort(()=>Math.random()-0.5);
+  const opts = [item, ...all.filter(x => x.word !== item.word).sort(() => Math.random() - 0.5).slice(0, 3)]
+    .sort(() => Math.random() - 0.5);
+
   const con = document.getElementById('quiz-options');
   con.innerHTML = '';
   opts.forEach(opt => {
     const btn = document.createElement('button');
-    btn.className = 'quiz-opt'; btn.textContent = opt.word;
-    btn.addEventListener('click', () => checkAnswer(btn, opt.word, item.word, item));
+    btn.className = 'quiz-opt';
+    btn.textContent = opt.word;
+    btn.addEventListener('click', () => handleAnswer(btn, opt.word, item.word));
     con.appendChild(btn);
   });
 }
-function checkAnswer(btn, chosen, correct, item) {
-  if (answered) return; answered = true; total++;
-  document.getElementById('total').textContent = total;
-  document.querySelectorAll('.quiz-opt').forEach(o => { if (o.textContent===correct) o.classList.add('correct'); });
-  if (chosen === correct) {
-    score++; document.getElementById('score').textContent = score;
-    btn.classList.add('correct');
-    document.getElementById('quiz-feedback').innerHTML = '🎉 答對了！ Great job!';
+
+function handleAnswer(btn, chosen, correct) {
+  if (quizDone) return;
+  quizDone = true;
+
+  // 停用所有選項，防止重複點擊
+  document.querySelectorAll('.quiz-opt').forEach(o => o.disabled = true);
+
+  // 標示正確答案
+  document.querySelectorAll('.quiz-opt').forEach(o => {
+    if (o.textContent === correct) o.classList.add('correct');
+  });
+
+  const isCorrect = (chosen === correct);
+  if (isCorrect) {
+    quizCorrect++;
+    btn.classList.add('correct', 'pop');
+    document.getElementById('quiz-feedback').innerHTML = '🎉 答對了！Great job!';
   } else {
-    btn.classList.add('wrong');
-    document.getElementById('quiz-feedback').innerHTML = '💪 再試試！ Try again!';
+    btn.classList.add('wrong', 'pop');
+    document.getElementById('quiz-feedback').innerHTML = '💪 再加油！Keep trying!';
   }
+
   speak(correct);
-  const stars = Math.round((score/total)*5);
-  for (let i=1;i<=5;i++) document.getElementById('s'+i).classList.toggle('earned', i<=stars);
+  quizIndex++;
+  updateHeader();
+
+  // 1.1秒後自動進入下一題或顯示結果
+  setTimeout(() => {
+    if (quizIndex < TOTAL_Q) {
+      renderQuestion();
+    } else {
+      showResult();
+    }
+  }, 1100);
 }
 
-// EVENTS
+function showResult() {
+  document.getElementById('quiz-playing').style.display = 'none';
+  const result = document.getElementById('quiz-result');
+  result.classList.add('show');
+
+  const pts = quizCorrect * 10;
+  document.getElementById('result-pts').innerHTML = `${pts} <small>分</small>`;
+  document.getElementById('result-detail').textContent = `答對 ${quizCorrect} 題，共 ${TOTAL_Q} 題`;
+
+  let emoji, msg;
+  if (pts === 100)    { emoji = '🏆'; msg = '完美滿分！！太厲害了！Perfect！'; }
+  else if (pts >= 80) { emoji = '🎉'; msg = '非常棒！Great job！'; }
+  else if (pts >= 60) { emoji = '😊'; msg = '不錯喔！Keep it up！'; }
+  else if (pts >= 40) { emoji = '💪'; msg = '繼續加油！You can do it！'; }
+  else                { emoji = '📚'; msg = '多練習就會進步！Practice more！'; }
+
+  document.getElementById('result-emoji').textContent = emoji;
+  document.getElementById('result-msg').textContent = msg;
+}
+
+// ===== 事件 =====
 document.querySelectorAll('.page-nav-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.page-nav-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    document.getElementById('page-'+btn.dataset.page).classList.add('active');
+    document.getElementById('page-' + btn.dataset.page).classList.add('active');
     if (btn.dataset.page === 'bookmarks') renderBookmarks();
   });
 });
-
 document.querySelectorAll('.tab-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -507,16 +564,13 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
     renderCards(currentCat);
   });
 });
-
 document.getElementById('refresh-cards-btn').addEventListener('click', () => {
   currentDisplay[currentCat] = getNextBatch(currentCat);
   renderCards(currentCat);
-  if (!document.querySelector('.toast.show')) showToast('🔄 換了一批新單字！');
 });
-
-document.getElementById('next-btn').addEventListener('click', () => { quizIndex++; showQuiz(); });
-document.getElementById('quiz-refresh-btn').addEventListener('click', () => { buildQuiz(); showQuiz(); showToast('🔄 題目重新洗牌了！'); });
-
+document.getElementById('quiz-refresh-btn').addEventListener('click', () => {
+  buildQuiz(); showToast('🔄 題目重新洗牌了！');
+});
 document.getElementById('clear-all-btn').addEventListener('click', () => {
   if (!bookmarks.length) return;
   if (confirm('確定清除所有收藏的單字嗎？')) {
@@ -526,11 +580,10 @@ document.getElementById('clear-all-btn').addEventListener('click', () => {
   }
 });
 
-// INIT
+// 初始化
 document.getElementById('bookmark-badge').textContent = bookmarks.length;
 renderCards(currentCat);
 buildQuiz();
-showQuiz();
 </script>
 </body>
 </html>
