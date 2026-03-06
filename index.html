@@ -463,20 +463,54 @@ let quizHistory = JSON.parse(sessionStorage.getItem('eng_hist') || '[]');
 const totalWords = Object.values(vocab).flat().length;
 console.log('Total words:', totalWords);
 
-// ===== SPEECH =====
+// ===== SPEECH（iOS / Android 相容版）=====
+// iOS 規定：speechSynthesis 必須在使用者點擊事件內同步呼叫
+// 策略：優先用 speechSynthesis（iOS/Android 都支援），失敗才用 Google TTS
+
+let voicesLoaded = false;
+let preferredVoice = null;
+
+// 預載語音清單（部分瀏覽器需要等候）
+function loadVoices() {
+  const voices = window.speechSynthesis ? speechSynthesis.getVoices() : [];
+  if (voices.length) {
+    voicesLoaded = true;
+    // 優先選英文語音
+    preferredVoice =
+      voices.find(v => v.lang === 'en-US' && v.localService) ||
+      voices.find(v => v.lang === 'en-US') ||
+      voices.find(v => v.lang.startsWith('en')) ||
+      null;
+  }
+}
+if (window.speechSynthesis) {
+  loadVoices();
+  speechSynthesis.onvoiceschanged = loadVoices;
+}
+
 function speak(word) {
+  // 優先用 Web Speech API（iOS Safari/Chrome 相容，且在點擊事件中直接呼叫）
+  if (window.speechSynthesis) {
+    speechSynthesis.cancel(); // 停止前一個
+    const u = new SpeechSynthesisUtterance(word);
+    u.lang = 'en-US';
+    u.rate = 0.82;
+    u.pitch = 1.05;
+    u.volume = 1;
+    if (preferredVoice) u.voice = preferredVoice;
+    // iOS 有時需要短暫延遲才能連續播放
+    setTimeout(() => speechSynthesis.speak(u), 50);
+    return;
+  }
+  // fallback：Google TTS（Android 上備用）
+  speakGTTS(word);
+}
+
+function speakGTTS(word) {
   const url = `https://translate.googleapis.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(word)}&tl=en-US&client=gtx&ttsspeed=0.8`;
   const audio = new Audio(url);
-  audio.onerror = () => speakWeb(word);
-  const p = audio.play();
-  if (p) p.catch(() => speakWeb(word));
-}
-function speakWeb(word) {
-  if (!window.speechSynthesis) return;
-  speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(word);
-  u.lang = 'en-US'; u.rate = 0.82; u.pitch = 1.05;
-  speechSynthesis.speak(u);
+  audio.onerror = () => {};
+  audio.play().catch(() => {});
 }
 
 // ===== TOAST =====
@@ -769,6 +803,20 @@ document.getElementById('clear-all-btn').addEventListener('click', () => {
 });
 document.getElementById('ss-close-btn').addEventListener('click', () => document.getElementById('screenshot-overlay').classList.remove('show'));
 document.getElementById('screenshot-overlay').addEventListener('click', e => { if (e.target === e.currentTarget) e.currentTarget.classList.remove('show'); });
+
+// ===== iOS 音訊解鎖 =====
+// iPhone 規定必須由使用者觸碰才能播音，首次點擊時靜默呼叫一次解鎖
+let audioUnlocked = false;
+function unlockAudio() {
+  if (audioUnlocked || !window.speechSynthesis) return;
+  audioUnlocked = true;
+  const u = new SpeechSynthesisUtterance('');
+  u.volume = 0; u.lang = 'en-US';
+  speechSynthesis.speak(u);
+  setTimeout(() => speechSynthesis.cancel(), 100);
+}
+document.addEventListener('touchstart', unlockAudio, { once: true });
+document.addEventListener('click', unlockAudio, { once: true });
 
 // ===== 初始化 =====
 document.getElementById('bookmark-badge').textContent = bookmarks.length;
