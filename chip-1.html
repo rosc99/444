@@ -343,60 +343,149 @@ const _qCache={}, _hCache={};
 
 // ═══════════════════════════════════════════════
 //  資料抓取：quote（即時報價）
+//  主路徑：Yahoo Finance query2（支援CORS）
+//  備援1：query1
+//  備援2：allorigins CORS proxy
 // ═══════════════════════════════════════════════
 async function fetchQuote(id) {
   if (_qCache[id] && Date.now()-_qCache[id].t < 5*60*1000) return _qCache[id].d;
-  try {
-    const r = await fetch(`${PROXY}?ticker=${id}.TW`,{
-      headers:{'Authorization':`Bearer ${SUPA_KEY}`,'Content-Type':'application/json'},
-      signal:AbortSignal.timeout(10000)
-    });
-    if (!r.ok) return null;
-    const d = await r.json();
-    if (!d.price) return null;
-    _qCache[id]={d,t:Date.now()};
-    return d;
-  } catch { return null; }
+
+  const suffixes = ['.TW', '.TWO'];
+
+  // 主路徑：Yahoo Finance query2（對手機瀏覽器 CORS 較友好）
+  for (const suffix of suffixes) {
+    for (const host of ['query2','query1']) {
+      try {
+        const url = `https://${host}.finance.yahoo.com/v8/finance/chart/${id}${suffix}?interval=1d&range=5d`;
+        const r = await fetch(url, {signal:AbortSignal.timeout(10000)});
+        if (!r.ok) continue;
+        const json = await r.json();
+        const res  = json?.chart?.result?.[0];
+        if (!res) continue;
+        const meta   = res.meta;
+        const q      = res.indicators.quote[0];
+        const closes = (q.close||[]).filter(v=>v!=null);
+        const highs  = (q.high||[]).filter(v=>v!=null);
+        if (!closes.length) continue;
+        const price  = +(meta.regularMarketPrice || closes[closes.length-1]).toFixed(2);
+        const prev   = closes[closes.length-2] || price;
+        const change = +((price-prev)/prev*100).toFixed(2);
+        const high   = highs[highs.length-1] || price;
+        const d = { price, change, high, name: meta.shortName || id };
+        _qCache[id]={d,t:Date.now()};
+        return d;
+      } catch {}
+    }
+  }
+
+  // 備援：allorigins CORS proxy → Yahoo Finance
+  for (const suffix of suffixes) {
+    try {
+      const target = encodeURIComponent(`https://query2.finance.yahoo.com/v8/finance/chart/${id}${suffix}?interval=1d&range=5d`);
+      const r = await fetch(`https://api.allorigins.win/get?url=${target}`, {signal:AbortSignal.timeout(12000)});
+      if (!r.ok) continue;
+      const wrapper = await r.json();
+      const json = JSON.parse(wrapper.contents);
+      const res  = json?.chart?.result?.[0];
+      if (!res) continue;
+      const meta   = res.meta;
+      const q      = res.indicators.quote[0];
+      const closes = (q.close||[]).filter(v=>v!=null);
+      const highs  = (q.high||[]).filter(v=>v!=null);
+      if (!closes.length) continue;
+      const price  = +(meta.regularMarketPrice || closes[closes.length-1]).toFixed(2);
+      const prev   = closes[closes.length-2] || price;
+      const change = +((price-prev)/prev*100).toFixed(2);
+      const high   = highs[highs.length-1] || price;
+      const d = { price, change, high, name: meta.shortName || id };
+      _qCache[id]={d,t:Date.now()};
+      return d;
+    } catch {}
+  }
+
+  // 最後備援：Supabase proxy（可能已失效，但仍嘗試）
+  for (const suffix of suffixes) {
+    try {
+      const r = await fetch(`${PROXY}?ticker=${id}${suffix}`,{
+        headers:{'Authorization':`Bearer ${SUPA_KEY}`,'Content-Type':'application/json'},
+        signal:AbortSignal.timeout(8000)
+      });
+      if (!r.ok) continue;
+      const d = await r.json();
+      if (!d.price) continue;
+      _qCache[id]={d,t:Date.now()};
+      return d;
+    } catch {}
+  }
+
+  return null;
 }
 
 // ═══════════════════════════════════════════════
 //  資料抓取：歷史收盤（算 MA 用）
-//  走 proxy stooq，失敗則 fallback Yahoo Finance
+//  主路徑：Yahoo Finance query2/query1（CORS）
+//  備援1：allorigins CORS proxy
+//  備援2：Supabase proxy stooq（可能已失效）
 // ═══════════════════════════════════════════════
 async function fetchHistory(id) {
   if (_hCache[id]) return _hCache[id];
 
-  // 1️⃣ proxy stooq（台股加 .tw）
+  const suffixes = ['.TW', '.TWO'];
+
+  // 1️⃣ Yahoo Finance 直連（query2 CORS 較好）
+  for (const sfx of suffixes) {
+    for (const host of ['query2','query1']) {
+      try {
+        const url = `https://${host}.finance.yahoo.com/v8/finance/chart/${id}${sfx}?interval=1d&range=2mo`;
+        const r = await fetch(url, {signal:AbortSignal.timeout(10000)});
+        if (!r.ok) continue;
+        const d = await r.json();
+        const res = d?.chart?.result?.[0];
+        if (!res) continue;
+        const q = res.indicators.quote[0];
+        const closes  = (q.close  ||[]).filter(v=>v!=null);
+        const highs   = (q.high   ||[]).filter(v=>v!=null);
+        const volumes = (q.volume ||[]).filter(v=>v!=null);
+        if (closes.length >= 22) {
+          const h = {closes, highs, volumes};
+          _hCache[id]=h; return h;
+        }
+      } catch {}
+    }
+  }
+
+  // 2️⃣ allorigins CORS proxy 備援
+  for (const sfx of suffixes) {
+    try {
+      const target = encodeURIComponent(`https://query2.finance.yahoo.com/v8/finance/chart/${id}${sfx}?interval=1d&range=2mo`);
+      const r = await fetch(`https://api.allorigins.win/get?url=${target}`, {signal:AbortSignal.timeout(15000)});
+      if (!r.ok) continue;
+      const wrapper = await r.json();
+      const d = JSON.parse(wrapper.contents);
+      const res = d?.chart?.result?.[0];
+      if (!res) continue;
+      const q = res.indicators.quote[0];
+      const closes  = (q.close  ||[]).filter(v=>v!=null);
+      const highs   = (q.high   ||[]).filter(v=>v!=null);
+      const volumes = (q.volume ||[]).filter(v=>v!=null);
+      if (closes.length >= 22) {
+        const h = {closes, highs, volumes};
+        _hCache[id]=h; return h;
+      }
+    } catch {}
+  }
+
+  // 3️⃣ Supabase proxy stooq（最後嘗試）
   try {
     const r = await fetch(
       `${PROXY}/stooq?s=${id.toLowerCase()}.tw&days=30`,
-      {headers:{'Authorization':`Bearer ${SUPA_KEY}`},signal:AbortSignal.timeout(10000)}
+      {headers:{'Authorization':`Bearer ${SUPA_KEY}`},signal:AbortSignal.timeout(8000)}
     );
     if (r.ok) {
       const d = await r.json();
       if (d.closes?.length >= 22) {
         const h = {closes:d.closes, highs:d.highs||null, volumes:d.volumes||null};
         _hCache[id]=h; return h;
-      }
-    }
-  } catch {}
-
-  // 2️⃣ Yahoo Finance v8 直連
-  try {
-    const url=`https://query1.finance.yahoo.com/v8/finance/chart/${id}.TW?interval=1d&range=2mo`;
-    const r = await fetch(url,{signal:AbortSignal.timeout(10000)});
-    if (r.ok) {
-      const d = await r.json();
-      const res = d?.chart?.result?.[0];
-      if (res) {
-        const q=res.indicators.quote[0];
-        const closes  = (q.close||[]).filter(v=>v!=null);
-        const highs   = (q.high||[]).filter(v=>v!=null);
-        const volumes = (q.volume||[]).filter(v=>v!=null);
-        if (closes.length>=22) {
-          const h={closes,highs,volumes};
-          _hCache[id]=h; return h;
-        }
       }
     }
   } catch {}
@@ -673,7 +762,13 @@ function renderSettingsPage(){
     <div class="setting-row" style="cursor:default">
       <div class="setting-info"><div class="setting-name">報價 + 歷史</div><div class="setting-sub">Supabase proxy → stooq → Yahoo Finance</div></div>
       <div class="badge pass" style="flex-shrink:0">✓ 即時</div>
-    </div>`;
+    </div>
+    <div class="settings-group-label" style="margin-top:18px">🔧 資料診斷</div>
+    <div class="setting-row" style="cursor:pointer" onclick="runDiag()">
+      <div class="setting-info"><div class="setting-name">測試單支股票資料</div><div class="setting-sub">測試 2330 台積電的報價與歷史資料</div></div>
+      <div class="setting-val">▶ 執行</div>
+    </div>
+    <div id="diagResult" style="margin-top:8px;padding:12px;background:#0a0c10;border:1px solid var(--border);border-radius:10px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-dim);line-height:1.8;display:none"></div>`;
   document.querySelectorAll('.toggle').forEach(t=>{
     t.addEventListener('click',()=>{
       const k=t.dataset.key; CFG[k]=!CFG[k];
@@ -764,9 +859,37 @@ document.querySelectorAll('.filter-chip').forEach(chip=>{
 // ═══════════════════════════════════════════════
 
 // 用 dashStooq 相同邏輯抓指數歷史（台股加權 ^twii / OTC ^twoii）
-async function fetchIndexHistory(stooqSym, days) {
-  // 先走 Supabase proxy
+async function fetchIndexHistory(yahooSym, days) {
+  const range = days > 100 ? '12mo' : '3mo';
+
+  // 1️⃣ Yahoo Finance 直連（query2 CORS 較好 → query1）
+  for (const host of ['query2','query1']) {
+    try {
+      const url = `https://${host}.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(yahooSym)}?interval=1d&range=${range}`;
+      const r = await fetch(url, {signal:AbortSignal.timeout(10000)});
+      if (r.ok) {
+        const d = await r.json();
+        const closes = d?.chart?.result?.[0]?.indicators?.quote?.[0]?.close?.filter(v=>v!=null&&v>0);
+        if (closes?.length >= 2) return closes.slice(-days);
+      }
+    } catch {}
+  }
+
+  // 2️⃣ allorigins CORS proxy 備援
   try {
+    const target = encodeURIComponent(`https://query2.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(yahooSym)}?interval=1d&range=${range}`);
+    const r = await fetch(`https://api.allorigins.win/get?url=${target}`, {signal:AbortSignal.timeout(15000)});
+    if (r.ok) {
+      const wrapper = await r.json();
+      const d = JSON.parse(wrapper.contents);
+      const closes = d?.chart?.result?.[0]?.indicators?.quote?.[0]?.close?.filter(v=>v!=null&&v>0);
+      if (closes?.length >= 2) return closes.slice(-days);
+    }
+  } catch {}
+
+  // 3️⃣ Supabase proxy stooq（最後嘗試）
+  try {
+    const stooqSym = yahooSym === '^TWII' ? 'twii' : yahooSym === '^TWOII' ? 'twoii' : yahooSym.replace('^','').toLowerCase();
     const r = await fetch(
       `${PROXY}/stooq?s=${encodeURIComponent(stooqSym)}&days=${days}`,
       {headers:{'Authorization':`Bearer ${SUPA_KEY}`}, signal:AbortSignal.timeout(10000)}
@@ -777,26 +900,15 @@ async function fetchIndexHistory(stooqSym, days) {
     }
   } catch {}
 
-  // Fallback：stooq 直連（指數符號不用 .tw 後綴）
+  // 4️⃣ stooq 直連 CSV fallback
   try {
-    const sym = stooqSym.startsWith('^') ? stooqSym.slice(1).toLowerCase() : stooqSym;
-    const r = await fetch(`https://stooq.com/q/d/l/?s=${sym}&i=d`, {signal:AbortSignal.timeout(8000)});
+    const stooqSym = yahooSym === '^TWII' ? 'twii' : yahooSym === '^TWOII' ? 'twoii' : yahooSym.replace('^','').toLowerCase();
+    const r = await fetch(`https://stooq.com/q/d/l/?s=${stooqSym}&i=d`, {signal:AbortSignal.timeout(8000)});
     const text = await r.text();
     if (text && !text.includes('No data') && !text.includes('<!DOCTYPE')) {
       const lines = text.trim().split('\n').slice(1).filter(Boolean);
       const closes = lines.slice(-days).map(l=>parseFloat(l.split(',')[4])).filter(v=>!isNaN(v)&&v>0);
       if (closes.length >= 2) return closes;
-    }
-  } catch {}
-
-  // Fallback：Yahoo Finance
-  try {
-    const yahooSym = stooqSym === 'twii' ? '^TWII' : stooqSym === 'twoii' ? '^TWOII' : stooqSym.toUpperCase();
-    const r = await fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${yahooSym}?interval=1d&range=12mo`, {signal:AbortSignal.timeout(8000)});
-    if (r.ok) {
-      const d = await r.json();
-      const closes = d?.chart?.result?.[0]?.indicators?.quote?.[0]?.close?.filter(v=>v!=null&&v>0);
-      if (closes?.length >= 2) return closes.slice(-days);
     }
   } catch {}
 
@@ -819,8 +931,8 @@ async function loadMarketData() {
   try {
     // 同時抓：加權(twii) 200天、OTC(twoii) 30天
     const [tseHist, otcHist] = await Promise.all([
-      fetchIndexHistory('twii', 210),
-      fetchIndexHistory('twoii', 30),
+      fetchIndexHistory('^TWII', 210),
+      fetchIndexHistory('^TWOII', 30),
     ]);
 
     if (!tseHist || tseHist.length < 5) {
@@ -1099,6 +1211,74 @@ async function deployToGitHub() {
     showToast('❌ ' + e.message, 'warn');
     if (btn) { btn.textContent = '☁️'; btn.disabled = false; }
   }
+}
+
+
+// ═══════════════════════════════════════════════
+//  資料診斷工具
+// ═══════════════════════════════════════════════
+async function runDiag() {
+  const el = document.getElementById('diagResult');
+  el.style.display = 'block';
+  el.innerHTML = '⏳ 診斷中…';
+
+  const lines = [];
+  const ts = (label, ok, detail) => {
+    lines.push(`${ok ? '✅' : '❌'} ${label}: ${detail}`);
+    el.innerHTML = lines.join('<br>');
+  };
+
+  // 1. Yahoo query2 直連（主路徑）
+  try {
+    const r = await fetch('https://query2.finance.yahoo.com/v8/finance/chart/2330.TW?interval=1d&range=5d', {signal:AbortSignal.timeout(8000)});
+    const d = await r.json();
+    const closes = d?.chart?.result?.[0]?.indicators?.quote?.[0]?.close?.filter(v=>v!=null);
+    const ok = closes?.length >= 2;
+    ts('Yahoo query2 2330（主路徑）', ok, ok ? `價格=${closes.at(-1)?.toFixed(0)}` : 'no data');
+  } catch(e) { ts('Yahoo query2 2330（主路徑）', false, e.message); }
+
+  // 2. Yahoo query1 直連
+  try {
+    const r = await fetch('https://query1.finance.yahoo.com/v8/finance/chart/2330.TW?interval=1d&range=2mo', {signal:AbortSignal.timeout(8000)});
+    const d = await r.json();
+    const closes = d?.chart?.result?.[0]?.indicators?.quote?.[0]?.close?.filter(v=>v!=null);
+    const ok = closes?.length >= 22;
+    ts('Yahoo query1 2330（備援1）', ok, ok ? `${closes.length}筆, 最新=${closes.at(-1)?.toFixed(0)}` : 'no data');
+  } catch(e) { ts('Yahoo query1 2330（備援1）', false, e.message); }
+
+  // 3. allorigins CORS proxy
+  try {
+    const target = encodeURIComponent('https://query2.finance.yahoo.com/v8/finance/chart/2330.TW?interval=1d&range=2mo');
+    const r = await fetch(`https://api.allorigins.win/get?url=${target}`, {signal:AbortSignal.timeout(12000)});
+    const wrapper = await r.json();
+    const d = JSON.parse(wrapper.contents);
+    const closes = d?.chart?.result?.[0]?.indicators?.quote?.[0]?.close?.filter(v=>v!=null);
+    const ok = closes?.length >= 22;
+    ts('allorigins proxy 2330（備援2）', ok, ok ? `${closes.length}筆, 最新=${closes.at(-1)?.toFixed(0)}` : 'no data');
+  } catch(e) { ts('allorigins proxy 2330（備援2）', false, e.message); }
+
+  // 4. Yahoo ^TWII 加權指數
+  try {
+    const r = await fetch('https://query2.finance.yahoo.com/v8/finance/chart/%5ETWII?interval=1d&range=12mo', {signal:AbortSignal.timeout(8000)});
+    const d = await r.json();
+    const closes = d?.chart?.result?.[0]?.indicators?.quote?.[0]?.close?.filter(v=>v!=null);
+    const ok = closes?.length >= 5;
+    ts('Yahoo ^TWII 加權', ok, ok ? `${closes.length}筆, 最新=${closes.at(-1)?.toFixed(0)}` : 'no data');
+  } catch(e) { ts('Yahoo ^TWII 加權', false, e.message); }
+
+  // 5. Supabase proxy（可能已失效）
+  try {
+    const r = await fetch(`${PROXY}?ticker=2330.TW`, {
+      headers:{'Authorization':`Bearer ${SUPA_KEY}`},
+      signal:AbortSignal.timeout(8000)
+    });
+    const d = await r.json();
+    ts('Supabase proxy 2330（舊路徑）', !!d.price, d.price ? `價格=${d.price}` : JSON.stringify(d).slice(0,80));
+  } catch(e) { ts('Supabase proxy 2330（舊路徑）', false, e.message); }
+
+  lines.push('─────────────────');
+  lines.push('診斷完成，截圖回報結果');
+  el.innerHTML = lines.join('<br>');
 }
 
 updateStats();
