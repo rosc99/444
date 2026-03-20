@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>籌碼雷達</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0c10;
+    --surface: #111418;
+    --border: #1e2330;
+    --accent: #f0b429;
+    --red: #ff4757;
+    --green: #2ed573;
+    --blue: #3d9bff;
+    --muted: #4a5568;
+    --text: #e2e8f0;
+    --text-dim: #718096;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Noto Sans TC', sans-serif;
+    min-height: 100vh;
+    padding-bottom: 80px;
+  }
+
+  /* ── Header ── */
+  .header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(10,12,16,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 16px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .header-left { display: flex; align-items: center; gap: 10px; }
+  .logo {
+    width: 32px; height: 32px;
+    background: linear-gradient(135deg, var(--accent), #e67e00);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+  }
+  .header h1 { font-size: 17px; font-weight: 900; letter-spacing: 0.05em; }
+  .header h1 span { color: var(--accent); }
+  .update-badge {
+    font-size: 11px;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--text-dim);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 3px 8px;
+    border-radius: 20px;
+  }
+
+  /* ── Filters Bar ── */
+  .filters {
+    display: flex;
+    gap: 8px;
+    padding: 12px 16px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .filters::-webkit-scrollbar { display: none; }
+  .filter-chip {
+    flex-shrink: 0;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .filter-chip.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #000;
+    font-weight: 700;
+  }
+
+  /* ── Stats Row ── */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    padding: 0 16px 12px;
+  }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 10px 12px;
+    text-align: center;
+  }
+  .stat-num {
+    font-size: 22px;
+    font-weight: 900;
+    font-family: 'JetBrains Mono', monospace;
+    line-height: 1;
+  }
+  .stat-num.red { color: var(--red); }
+  .stat-num.gold { color: var(--accent); }
+  .stat-num.green { color: var(--green); }
+  .stat-label { font-size: 10px; color: var(--text-dim); margin-top: 3px; }
+
+  /* ── Section Title ── */
+  .section-title {
+    padding: 4px 16px 8px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* ── Signal Card ── */
+  .cards { display: flex; flex-direction: column; gap: 10px; padding: 0 16px; }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 14px 16px;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.1s, border-color 0.2s;
+    animation: cardIn 0.4s ease both;
+  }
+  .card:active { transform: scale(0.98); }
+  .card.signal { border-color: rgba(240,180,41,0.35); }
+  .card.signal::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent), transparent);
+  }
+
+  @keyframes cardIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .card:nth-child(1) { animation-delay: 0.05s; }
+  .card:nth-child(2) { animation-delay: 0.10s; }
+  .card:nth-child(3) { animation-delay: 0.15s; }
+  .card:nth-child(4) { animation-delay: 0.20s; }
+
+  .card-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  .stock-info { display: flex; flex-direction: column; gap: 2px; }
+  .stock-id {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--text-dim);
+  }
+  .stock-name { font-size: 17px; font-weight: 700; }
+
+  .price-block { text-align: right; }
+  .price {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--red);
+    line-height: 1;
+  }
+  .price.down { color: var(--green); }
+  .change {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--red);
+    margin-top: 2px;
+  }
+  .change.down { color: var(--green); }
+
+  /* ── Filter badges ── */
+  .badge-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+  .badge {
+    font-size: 11px;
+    font-weight: 500;
+    padding: 3px 8px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .badge.pass { background: rgba(46,213,115,0.12); color: var(--green); border: 1px solid rgba(46,213,115,0.25); }
+  .badge.warn { background: rgba(255,71,87,0.1); color: var(--red); border: 1px solid rgba(255,71,87,0.2); }
+  .badge.info { background: rgba(61,155,255,0.1); color: var(--blue); border: 1px solid rgba(61,155,255,0.2); }
+  .badge.gold { background: rgba(240,180,41,0.1); color: var(--accent); border: 1px solid rgba(240,180,41,0.25); }
+
+  /* ── Chip bars ── */
+  .chip-section { margin-top: 4px; }
+  .chip-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 5px;
+  }
+  .chip-label {
+    font-size: 11px;
+    color: var(--text-dim);
+    width: 28px;
+    flex-shrink: 0;
+  }
+  .chip-bar-bg {
+    flex: 1;
+    height: 5px;
+    background: var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .chip-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.8s cubic-bezier(0.4,0,0.2,1);
+  }
+  .chip-bar-fill.red { background: var(--red); }
+  .chip-bar-fill.blue { background: var(--blue); }
+  .chip-val {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--red);
+    width: 52px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  .volume-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid var(--border);
+  }
+  .vol-icon { font-size: 12px; }
+  .vol-text { font-size: 11px; color: var(--text-dim); }
+  .vol-val {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--accent);
+    margin-left: auto;
+  }
+  .vol-ratio { font-size: 11px; color: var(--text-dim); }
+
+  /* ── Eliminated section ── */
+  .elim-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 14px 16px;
+    opacity: 0.5;
+  }
+  .elim-top {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 6px;
+  }
+  .elim-info { display: flex; align-items: center; gap: 8px; }
+  .elim-id { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text-dim); }
+  .elim-name { font-size: 14px; font-weight: 600; }
+  .elim-reason {
+    font-size: 11px;
+    color: var(--red);
+    background: rgba(255,71,87,0.08);
+    border: 1px solid rgba(255,71,87,0.18);
+    padding: 2px 8px;
+    border-radius: 6px;
+    display: flex; align-items: center; gap: 4px;
+  }
+
+  /* ── Bottom nav ── */
+  .bottom-nav {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: rgba(10,12,16,0.95);
+    backdrop-filter: blur(16px);
+    border-top: 1px solid var(--border);
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    padding: 8px 0 env(safe-area-inset-bottom, 8px);
+  }
+  .nav-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    padding: 6px 0;
+    cursor: pointer;
+  }
+  .nav-icon { font-size: 20px; }
+  .nav-label { font-size: 10px; color: var(--text-dim); }
+  .nav-btn.active .nav-label { color: var(--accent); }
+  .nav-btn.active .nav-icon { filter: drop-shadow(0 0 6px var(--accent)); }
+
+  /* ── Score ring ── */
+  .score-ring { width: 40px; height: 40px; flex-shrink: 0; }
+  .ring-bg { fill: none; stroke: var(--border); stroke-width: 3; }
+  .ring-fill { fill: none; stroke: var(--accent); stroke-width: 3; stroke-linecap: round;
+    transform: rotate(-90deg); transform-origin: 50% 50%;
+    transition: stroke-dashoffset 1s ease; }
+  .ring-text { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; fill: var(--accent); dominant-baseline: middle; text-anchor: middle; }
+
+  /* ── Modal ── */
+  .modal-overlay {
+    display: none;
+    position: fixed; inset: 0; z-index: 200;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(4px);
+    align-items: flex-end;
+    justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    width: 100%; max-width: 480px;
+    background: #151820;
+    border: 1px solid var(--border);
+    border-radius: 24px 24px 0 0;
+    padding: 20px 20px 40px;
+    transform: translateY(100%);
+    transition: transform 0.3s cubic-bezier(0.32,0.72,0,1);
+  }
+  .modal-overlay.open .modal { transform: translateY(0); }
+  .modal-handle { width: 36px; height: 4px; background: var(--border); border-radius: 2px; margin: 0 auto 18px; }
+  .modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .modal-title { font-size: 18px; font-weight: 900; }
+  .modal-close { width: 30px; height: 30px; border-radius: 50%; background: var(--border); border: none; color: var(--text); font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  .modal-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); }
+  .modal-row:last-child { border-bottom: none; }
+  .modal-row-label { font-size: 12px; color: var(--text-dim); }
+  .modal-row-val { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; }
+  .modal-filter-row { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid var(--border); }
+  .modal-filter-row:last-child { border-bottom: none; }
+  .filter-icon { font-size: 16px; width: 24px; text-align: center; }
+  .filter-desc { flex: 1; font-size: 12px; color: var(--text-dim); }
+  .filter-result { font-size: 12px; font-weight: 700; }
+  .filter-result.pass { color: var(--green); }
+  .filter-result.fail { color: var(--red); }
+  .filter-result.info { color: var(--blue); }
+
+  /* ── Pages ── */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* ── Settings page ── */
+  .settings-section { padding: 0 16px; margin-bottom: 20px; }
+  .settings-label { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; color: var(--text-dim); text-transform: uppercase; margin-bottom: 10px; }
+  .setting-row {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+  .setting-info { flex: 1; }
+  .setting-name { font-size: 14px; font-weight: 600; margin-bottom: 2px; }
+  .setting-sub { font-size: 11px; color: var(--text-dim); }
+  .setting-val {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--accent);
+    background: rgba(240,180,41,0.1);
+    border: 1px solid rgba(240,180,41,0.2);
+    padding: 4px 10px;
+    border-radius: 8px;
+  }
+  .toggle {
+    width: 44px; height: 24px;
+    background: var(--border);
+    border-radius: 12px;
+    position: relative;
+    cursor: pointer;
+    transition: background 0.2s;
+    flex-shrink: 0;
+  }
+  .toggle.on { background: var(--accent); }
+  .toggle::after {
+    content: '';
+    position: absolute;
+    width: 18px; height: 18px;
+    background: #fff;
+    border-radius: 50%;
+    top: 3px; left: 3px;
+    transition: transform 0.2s;
+  }
+  .toggle.on::after { transform: translateX(20px); }
+
+  /* ── Notify page ── */
+  .notify-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 14px 16px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .notify-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .notify-dot.new { background: var(--accent); box-shadow: 0 0 6px var(--accent); }
+  .notify-dot.old { background: var(--muted); }
+  .notify-content { flex: 1; }
+  .notify-title { font-size: 13px; font-weight: 700; margin-bottom: 2px; }
+  .notify-sub { font-size: 11px; color: var(--text-dim); }
+  .notify-time { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--text-dim); flex-shrink: 0; }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <div class="header-left">
+    <div class="logo">📡</div>
+    <h1>籌碼<span>雷達</span></h1>
+  </div>
+  <div class="update-badge" id="timeDisplay">更新中…</div>
+</div>
+
+<!-- Filter chips -->
+<div class="filters">
+  <div class="filter-chip active">全部 <span id="totalCount">0</span></div>
+  <div class="filter-chip">通過訊號</div>
+  <div class="filter-chip">爆量大漲</div>
+  <div class="filter-chip">土洋共振</div>
+  <div class="filter-chip">已淘汰</div>
+</div>
+
+<!-- Stats -->
+<div class="stats-row">
+  <div class="stat-card">
+    <div class="stat-num gold" id="passCount">0</div>
+    <div class="stat-label">通過三關</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-num red" id="scanCount">0</div>
+    <div class="stat-label">今日掃描</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-num green" id="elimCount">0</div>
+    <div class="stat-label">已淘汰</div>
+  </div>
+</div>
+
+<!-- Page: 訊號 -->
+<div class="page active" id="page-signal">
+  <div class="section-title">⚡ 通過訊號</div>
+  <div class="cards" id="signalCards"></div>
+  <div class="section-title" style="margin-top:16px;">🚫 遭淘汰個股</div>
+  <div style="padding:0 16px; display:flex; flex-direction:column; gap:8px;" id="elimCards"></div>
+</div>
+
+<!-- Page: 籌碼 -->
+<div class="page" id="page-chip">
+  <div class="section-title" style="margin-top:8px;">📊 三大法人今日籌碼</div>
+  <div style="padding:0 16px;" id="chipPage"></div>
+</div>
+
+<!-- Page: 推播 -->
+<div class="page" id="page-notify">
+  <div class="section-title" style="margin-top:8px;">🔔 推播記錄</div>
+  <div style="padding:0 16px;" id="notifyPage"></div>
+</div>
+
+<!-- Page: 設定 -->
+<div class="page" id="page-settings">
+  <div class="section-title" style="margin-top:8px;">⚙️ 濾波器設定</div>
+  <div class="settings-section" id="settingsPage"></div>
+</div>
+
+<!-- Stock Detail Modal -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal" id="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div class="modal-title" id="modalTitle">—</div>
+      <button class="modal-close" id="modalClose">✕</button>
+    </div>
+    <div id="modalBody"></div>
+  </div>
+</div>
+
+<!-- Bottom nav -->
+<div class="bottom-nav">
+  <div class="nav-btn active" data-page="signal">
+    <div class="nav-icon">📡</div>
+    <div class="nav-label">訊號</div>
+  </div>
+  <div class="nav-btn" data-page="chip">
+    <div class="nav-icon">📊</div>
+    <div class="nav-label">籌碼</div>
+  </div>
+  <div class="nav-btn" data-page="notify">
+    <div class="nav-icon">🔔</div>
+    <div class="nav-label">推播</div>
+  </div>
+  <div class="nav-btn" data-page="settings">
+    <div class="nav-icon">⚙️</div>
+    <div class="nav-label">設定</div>
+  </div>
+</div>
+
+<script>
+// ── Data ──
+const signals = [
+  { id:"2330", name:"台積電", price:968, change:3.42, foreign:45823, trust:8120, shadow:0.3, bias:4.2, vol_ratio:3.8, score:92,
+    filters:[{label:"純K線",tip:"上影線 0.3%＜1.5%",ok:true},{label:"土洋共振",tip:"外資+4.58萬 / 投信+8120張",ok:true},{label:"乖離 4.2%",tip:"月線乖離安全範圍 (< 15%)",ok:true}]},
+  { id:"2603", name:"長榮", price:218.5, change:5.08, foreign:32100, trust:5880, shadow:0.6, bias:9.1, vol_ratio:5.2, score:87,
+    filters:[{label:"純K線",tip:"上影線 0.6%＜1.5%",ok:true},{label:"土洋共振",tip:"外資+3.21萬 / 投信+5880張",ok:true},{label:"乖離 9.1%",tip:"偏高但未超過 15% 門檻",ok:true}]},
+  { id:"6669", name:"緯穎", price:1425, change:6.21, foreign:18450, trust:4200, shadow:0.8, bias:7.3, vol_ratio:4.1, score:81,
+    filters:[{label:"純K線",tip:"上影線 0.8%＜1.5%",ok:true},{label:"土洋共振",tip:"外資+1.85萬 / 投信+4200張",ok:true},{label:"乖離 7.3%",tip:"月線安全距離",ok:true}]},
+];
+const eliminated = [
+  { id:"3443", name:"創意", price:612, change:2.1, reason:"避雷針", detail:"上影線 3.2%＞1.5%", filter:1 },
+  { id:"2881", name:"富邦金", price:88.4, change:0.8, reason:"金融股排除", detail:"股票代號 28 開頭一律淘汰", filter:3 },
+  { id:"4938", name:"和碩", price:71.2, change:4.3, reason:"乖離過大", detail:"月線乖離 18.4%＞15% 上限", filter:3 },
+  { id:"8299", name:"群聯", price:445, change:3.6, reason:"投信不足", detail:"投信買超僅 +120 張，未達門檻", filter:2 },
+];
+const notifyLog = [
+  { title:"台積電 2330 ⚡ 三關全過", sub:"外資+4.58萬 投信+8120 爆量3.8x", time:"13:42", isNew:true },
+  { title:"長榮 2603 ⚡ 三關全過", sub:"外資+3.21萬 投信+5880 爆量5.2x", time:"13:41", isNew:true },
+  { title:"緯穎 6669 ⚡ 三關全過", sub:"外資+1.85萬 投信+4200 爆量4.1x", time:"13:40", isNew:true },
+  { title:"和碩 4938 ✗ 乖離過大", sub:"月線乖離 18.4% 超過 15% 門檻", time:"12:15", isNew:false },
+  { title:"創意 3443 ✗ 避雷針", sub:"上影線 3.2% 超過 1.5% 門檻", time:"10:33", isNew:false },
+];
+const settings = [
+  { name:"上影線門檻", sub:"純K線濾波器 — 拒絕避雷針", val:"1.5%", toggle:null },
+  { name:"外資最低買超", sub:"土洋共振 — 外資絕對買盤", val:"5000張", toggle:null },
+  { name:"投信最低買超", sub:"土洋共振 — 投信絕對買盤", val:"500張", toggle:null },
+  { name:"月線乖離上限", sub:"乖離率保護 — 不追高", val:"15%", toggle:null },
+  { name:"量比門檻", sub:"爆量確認 — 相對均量倍數", val:"3.0x", toggle:null },
+  { name:"排除金融股", sub:"28開頭股票代號一律排除", val:null, toggle:true },
+  { name:"LINE Notify 推播", sub:"訊號通過時自動推播", val:null, toggle:true },
+];
+
+// ── State ──
+let currentFilter = 'all';
+let toggleStates = [false, false, false, false, false, true, true];
+
+// ── Utils ──
+function fmt(n) { return n >= 10000 ? (n/10000).toFixed(1)+'萬' : n.toLocaleString(); }
+
+// ── Render signal cards ──
+function renderSignals() {
+  const container = document.getElementById('signalCards');
+  const C = 100.53;
+  container.innerHTML = '';
+  const list = currentFilter === 'elim' ? [] :
+    currentFilter === 'vol' ? signals.filter(s => s.vol_ratio >= 4) :
+    currentFilter === 'resonance' ? signals.filter(s => s.foreign > 20000 && s.trust > 5000) :
+    signals;
+
+  list.forEach((s, i) => {
+    const maxChip = Math.max(s.foreign, s.trust, 50000);
+    const offset = C - (s.score / 100) * C;
+    const card = document.createElement('div');
+    card.className = 'card signal';
+    card.style.animationDelay = (i * 0.08) + 's';
+    card.innerHTML = `
+      <div class="card-top">
+        <div class="stock-info">
+          <div class="stock-id">${s.id}</div>
+          <div class="stock-name">${s.name}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <svg class="score-ring" viewBox="0 0 40 40">
+            <circle class="ring-bg" cx="20" cy="20" r="16"/>
+            <circle class="ring-fill" cx="20" cy="20" r="16" stroke-dasharray="${C}" stroke-dashoffset="${offset}"/>
+            <text class="ring-text" x="20" y="20">${s.score}</text>
+          </svg>
+          <div class="price-block">
+            <div class="price">${s.price.toLocaleString()}</div>
+            <div class="change">▲${s.change}%</div>
+          </div>
+        </div>
+      </div>
+      <div class="badge-row">
+        ${s.filters.map(f=>`<div class="badge pass">${f.label} ✓</div>`).join('')}
+        <div class="badge gold">爆量 ${s.vol_ratio}x</div>
+      </div>
+      <div class="chip-section">
+        <div class="chip-row">
+          <div class="chip-label">外資</div>
+          <div class="chip-bar-bg"><div class="chip-bar-fill red" style="width:${(s.foreign/maxChip*100).toFixed(0)}%"></div></div>
+          <div class="chip-val">+${fmt(s.foreign)}</div>
+        </div>
+        <div class="chip-row">
+          <div class="chip-label">投信</div>
+          <div class="chip-bar-bg"><div class="chip-bar-fill blue" style="width:${(s.trust/maxChip*100).toFixed(0)}%"></div></div>
+          <div class="chip-val" style="color:var(--blue)">+${fmt(s.trust)}</div>
+        </div>
+      </div>
+      <div class="volume-row">
+        <span class="vol-icon">📊</span>
+        <span class="vol-text">成交量均量倍數</span>
+        <span class="vol-ratio">${s.vol_ratio}x</span>
+        <span class="vol-val">爆量</span>
+      </div>`;
+    card.addEventListener('click', () => openModal(s));
+    container.appendChild(card);
+  });
+}
+
+// ── Render eliminated ──
+function renderEliminated() {
+  const container = document.getElementById('elimCards');
+  container.innerHTML = '';
+  const show = currentFilter === 'all' || currentFilter === 'elim';
+  if (!show) return;
+  eliminated.forEach(e => {
+    const card = document.createElement('div');
+    card.className = 'elim-card';
+    card.style.cursor = 'pointer';
+    card.innerHTML = `
+      <div class="elim-top">
+        <div class="elim-info">
+          <span class="elim-id">${e.id}</span>
+          <span class="elim-name" style="margin-left:6px;">${e.name}</span>
+        </div>
+        <div class="elim-reason">✗ ${e.reason}</div>
+      </div>
+      <div style="font-size:11px;color:var(--text-dim);margin-top:4px;">${e.detail}</div>`;
+    card.addEventListener('click', () => openElimModal(e));
+    container.appendChild(card);
+  });
+}
+
+// ── Modal ──
+function openModal(s) {
+  document.getElementById('modalTitle').textContent = `${s.id} ${s.name}`;
+  document.getElementById('modalBody').innerHTML = `
+    <div class="modal-row"><span class="modal-row-label">收盤價</span><span class="modal-row-val" style="color:var(--red)">${s.price.toLocaleString()}</span></div>
+    <div class="modal-row"><span class="modal-row-label">漲幅</span><span class="modal-row-val" style="color:var(--red)">▲${s.change}%</span></div>
+    <div class="modal-row"><span class="modal-row-label">訊號評分</span><span class="modal-row-val" style="color:var(--accent)">${s.score} / 100</span></div>
+    <div class="modal-row"><span class="modal-row-label">月線乖離</span><span class="modal-row-val">${s.bias}%</span></div>
+    <div class="modal-row"><span class="modal-row-label">量比</span><span class="modal-row-val" style="color:var(--accent)">${s.vol_ratio}x 爆量</span></div>
+    <div style="margin-top:14px;font-size:11px;font-weight:700;letter-spacing:0.1em;color:var(--text-dim);text-transform:uppercase;margin-bottom:8px;">三道濾波器驗證</div>
+    ${s.filters.map(f=>`
+      <div class="modal-filter-row">
+        <span class="filter-icon">✅</span>
+        <div class="filter-desc"><b style="color:var(--text)">${f.label}</b><br>${f.tip}</div>
+        <span class="filter-result pass">通過</span>
+      </div>`).join('')}`;
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+function openElimModal(e) {
+  const filterNames = ['','純K線濾波器','土洋共振濾波器','乖離率防護'];
+  document.getElementById('modalTitle').textContent = `${e.id} ${e.name}`;
+  document.getElementById('modalBody').innerHTML = `
+    <div class="modal-row"><span class="modal-row-label">收盤價</span><span class="modal-row-val">${e.price.toLocaleString()}</span></div>
+    <div class="modal-row"><span class="modal-row-label">漲幅</span><span class="modal-row-val" style="color:var(--red)">▲${e.change}%</span></div>
+    <div style="margin-top:14px;font-size:11px;font-weight:700;letter-spacing:0.1em;color:var(--text-dim);text-transform:uppercase;margin-bottom:8px;">淘汰原因</div>
+    <div class="modal-filter-row">
+      <span class="filter-icon">❌</span>
+      <div class="filter-desc"><b style="color:var(--text)">${filterNames[e.filter]}</b><br>${e.detail}</div>
+      <span class="filter-result fail">淘汰</span>
+    </div>`;
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+document.getElementById('modalClose').addEventListener('click', closeModal);
+document.getElementById('modalOverlay').addEventListener('click', e => { if(e.target===document.getElementById('modalOverlay')) closeModal(); });
+function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); }
+
+// ── Chip page ──
+function renderChipPage() {
+  const all = [...signals, ...eliminated];
+  document.getElementById('chipPage').innerHTML = all.map(s => {
+    const isSignal = signals.includes(s);
+    const f = s.foreign || 0, t = s.trust || 0;
+    const maxC = Math.max(f, t, 30000);
+    return `<div class="card" style="margin-bottom:10px;cursor:default;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <div><span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text-dim)">${s.id}</span> <span style="font-weight:700">${s.name}</span></div>
+        <div class="badge ${isSignal?'pass':'warn'}">${isSignal?'✓ 通過':'✗ 淘汰'}</div>
+      </div>
+      <div class="chip-row"><div class="chip-label">外資</div><div class="chip-bar-bg"><div class="chip-bar-fill red" style="width:${f?((f/maxC)*100).toFixed(0):0}%"></div></div><div class="chip-val" style="color:${f>0?'var(--red)':'var(--text-dim)'}">${f>0?'+'+fmt(f):'—'}</div></div>
+      <div class="chip-row"><div class="chip-label">投信</div><div class="chip-bar-bg"><div class="chip-bar-fill blue" style="width:${t?((t/maxC)*100).toFixed(0):0}%"></div></div><div class="chip-val" style="color:${t>0?'var(--blue)':'var(--text-dim)'}">${t>0?'+'+fmt(t):'—'}</div></div>
+    </div>`;
+  }).join('');
+}
+
+// ── Notify page ──
+function renderNotifyPage() {
+  document.getElementById('notifyPage').innerHTML = notifyLog.map(n=>`
+    <div class="notify-card">
+      <div class="notify-dot ${n.isNew?'new':'old'}"></div>
+      <div class="notify-content">
+        <div class="notify-title">${n.title}</div>
+        <div class="notify-sub">${n.sub}</div>
+      </div>
+      <div class="notify-time">${n.time}</div>
+    </div>`).join('');
+}
+
+// ── Settings page ──
+function renderSettingsPage() {
+  document.getElementById('settingsPage').innerHTML = `
+    <div class="settings-label">濾波器參數</div>
+    ${settings.map((s,i)=>`
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-name">${s.name}</div>
+          <div class="setting-sub">${s.sub}</div>
+        </div>
+        ${s.val ? `<div class="setting-val">${s.val}</div>` :
+          `<div class="toggle ${toggleStates[i]?'on':''}" data-idx="${i}"></div>`}
+      </div>`).join('')}`;
+  document.querySelectorAll('.toggle').forEach(t => {
+    t.addEventListener('click', () => {
+      const idx = parseInt(t.dataset.idx);
+      toggleStates[idx] = !toggleStates[idx];
+      t.classList.toggle('on', toggleStates[idx]);
+    });
+  });
+}
+
+// ── Nav ──
+document.querySelectorAll('.nav-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const page = btn.dataset.page;
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById('page-'+page).classList.add('active');
+    if (page === 'chip') renderChipPage();
+    if (page === 'notify') renderNotifyPage();
+    if (page === 'settings') renderSettingsPage();
+  });
+});
+
+// ── Filter chips ──
+const filterMap = { 0:'all', 1:'pass', 2:'vol', 3:'resonance', 4:'elim' };
+document.querySelectorAll('.filter-chip').forEach((chip, i) => {
+  chip.addEventListener('click', () => {
+    document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+    currentFilter = filterMap[i];
+    renderSignals();
+    renderEliminated();
+  });
+});
+
+// ── Stats ──
+function updateStats() {
+  const total = signals.length + eliminated.length;
+  document.getElementById('totalCount').textContent = total;
+  document.getElementById('passCount').textContent = signals.length;
+  document.getElementById('scanCount').textContent = total;
+  document.getElementById('elimCount').textContent = eliminated.length;
+}
+
+function updateTime() {
+  const now = new Date();
+  const h = String(now.getHours()).padStart(2,'0');
+  const m = String(now.getMinutes()).padStart(2,'0');
+  const s = String(now.getSeconds()).padStart(2,'0');
+  document.getElementById('timeDisplay').textContent = `${h}:${m}:${s}`;
+}
+
+renderSignals();
+renderEliminated();
+updateStats();
+updateTime();
+setInterval(updateTime, 1000);
+</script>
+</body>
+</html>
